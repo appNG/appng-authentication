@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/oxm
+		http://www.springframework.org/schema/oxm/spring-oxm.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util.xsd">
+		
+	<context:component-scan base-package="org.appng.application.authentication" />
+
+	<bean id="loginUser" class="org.appng.application.authentication.webform.LoginUser" scope="request" lazy-init="true" />
+	<bean id="logoutUser" class="org.appng.application.authentication.webform.LogoutUser" scope="request" lazy-init="true" />
+	<bean id="passwordReset" class="org.appng.application.authentication.webform.PasswordReset" scope="request" lazy-init="true" />
+	<bean id="digestLogin" class="org.appng.application.authentication.digest.DigestLogin" scope="request" lazy-init="true" />
+	<bean id="ntlmLogin" class="org.appng.application.authentication.ntlm.NtlmLogin" scope="request" lazy-init="true" />
+	<bean id="passwordChange" class="org.appng.application.authentication.webform.PasswordChange" scope="request" lazy-init="true" />
+	<bean id="loginForm" class="org.appng.application.authentication.webform.LoginForm" scope="request" />
+
+	<bean id="mailTransport" class="org.appng.mail.impl.DefaultTransport">
+		<constructor-arg value="${site.mailHost:localhost}" />
+		<constructor-arg value="${site.mailPort:25}" />
+		<property name="disableSend" value="${site.mailDisabled:true}" />
+	</bean>
+
+	<!-- this is needed to support the dictionary view of manager-application -->
+	<util:list id="messageSources">
+		<value>authentication-messages</value>
+		<value>manager-messages</value>
+		<value>messages-core</value>
+	</util:list>
+
+</beans>

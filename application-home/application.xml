@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+	<name>${project.artifactId}</name>
+	<display-name><![CDATA[${displayName}]]></display-name>
+	<description><![CDATA[${project.description}]]></description>
+	<long-description><![CDATA[${longDescription}]]></long-description>
+	<version>${project.version}</version>
+	<timestamp>${timestamp}</timestamp>
+	<appng-version>${appNGVersion}</appng-version>
+
+	<roles>
+		<role admin-role="true">
+			<name>Users</name>
+			<description>General role for all users</description>
+			<permission id="output-format.html" />
+			<permission id="output-type.webgui" />
+		</role>
+	</roles>
+
+	<permissions>
+		<permission id="output-format.html">HTML Format</permission>
+		<permission id="output-type.webgui">Web-GUI type</permission>
+		<permission id="output-type.nonav">Web-GUI without navigation</permission>
+	</permissions>
+
+	<properties>
+		<property id="successPage" description="The path the user is forwarded to after successfull login">/appng-manager</property>
+		<property id="enableDeeplinks" description="set to true to forward the user to the originally requested page">true</property>
+		<property id="digestLoginRedirectWithServletPath" description="set to true to redirect to the original servlet path after a digest login (without query params)">false</property>
+		<property id="mailFrom" description="the sender address for emails send during passwort retrieval">support@aiticon.de</property>
+		<property id="digestMaxValidity" description="the maximum validity of a login digest in minutes">3</property>
+	</properties>
+	
+</application>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="form-auth" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<template path="event-webform.xsl" />
+	</config>
+	<action id="login">
+		<config>
+			<title>login</title>
+			<params>
+				<param name="form_action" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'loginUser'}" />
+		<datasource id="loginData" />
+		<bean id="loginUser" />
+	</action>
+	<action id="logout">
+		<config>
+			<title>logout</title>
+			<params>
+				<param name="action" />
+				<param name="forward" default="webform/login" />
+			</params>
+		</config>
+		<condition expression="${action eq 'logout'}" />
+		<bean id="logoutUser">
+			<option name="forward" forward="${forward}" />
+		</bean>
+	</action>
+	<action id="resetPassword">
+		<config>
+			<title>reset.password</title>
+			<params>
+				<param name="action" />
+				<param name="username" />
+			</params>
+		</config>
+		<condition expression="${username ne null and action eq 'resetPassword'}" />
+		<datasource id="loginData" />
+		<bean id="passwordReset" />
+	</action>
+
+	<action id="changePassword">
+		<config>
+			<title>change.password</title>
+			<params>
+				<param name="action" />
+				<param name="form_action" />
+				<param name="username" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'changePassword' and action  eq 'changePassword'}" />
+		<datasource id="changeLoginData">
+		</datasource>
+		<bean id="passwordChange">
+			<option id="${username}" name="username" />
+		</bean>
+	</action>
+
+	<action id="forgotPassword">
+		<config>
+			<title>forgot.password</title>
+			<params>
+				<param name="form_action" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'forgotPassword'}" />
+		<datasource id="loginData" />
+		<bean id="passwordReset" />
+	</action>
+</event>

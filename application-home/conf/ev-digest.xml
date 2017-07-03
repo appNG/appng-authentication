@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="digest-login" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<template path="event-webform.xsl" />
+	</config>
+	<action id="login">
+		<config>
+			<title>login.digest</title>
+		</config>
+		<condition />
+		<datasource id="loginData" />
+		<bean id="digestLogin" />
+	</action>
+</event>

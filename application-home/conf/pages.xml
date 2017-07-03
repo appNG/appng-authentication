@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applicationRootConfig xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<name><![CDATA[webformauth]]></name>
+	<config>
+		<labels>
+			<label id="logon.again" />
+			<label id="username" />
+			<label id="password" />
+			<label id="confirmation.password" />
+			<label id="back" />
+			<label id="oldpassword" />
+		</labels>
+		<session>
+			<session-params />
+		</session>
+	</config>
+	<pages>
+		<page id="webform" type="index">
+			<config>
+				<title />
+				<description />
+				<template path="page-webform.xsl" />
+				<url-schema>
+					<url-params>
+						<url-param name="action" default="login" />
+					</url-params>
+					<get-params>
+						<get-param name="action" />
+						<get-param name="username" />
+						<get-param name="hash" />
+						<get-param name="lang" />
+						<get-param name="forward" />
+					</get-params>
+					<post-params>
+						<post-param name="form_action" />
+						<post-param name="username" />
+						<post-param name="password" />
+						<post-param name="newpassword" />
+					</post-params>
+				</url-schema>
+			</config>
+			<structure>
+				<section>
+					<element>
+						<action id="login" eventId="form-auth">
+							<params>
+								<param name="form_action">${form_action}</param>
+							</params>
+							<condition expression="${action eq 'login' or action eq 'logout'}" />
+						</action>
+					</element>
+					<element>
+						<action id="logout" eventId="form-auth">
+							<params>
+								<param name="action">${action}</param>
+								<param name="forward">${forward}</param>
+							</params>
+							<condition expression="${false}" />
+						</action>
+					</element>
+					<element>
+						<action id="changePassword" eventId="form-auth" onSuccess="webform/login">
+							<params>
+								<param name="action">${action}</param>
+								<param name="form_action">${form_action}</param>
+								<param name="username">${username}</param>
+							</params>
+							<condition expression="${action eq 'changePassword'}" />
+						</action>
+					</element>
+					<element>
+						<action id="resetPassword" eventId="form-auth" onSuccess="webform/login">
+							<params>
+								<param name="action">${action}</param>
+								<param name="username">${username}</param>
+							</params>
+							<condition expression="${action eq 'resetPassword'}" />
+						</action>
+					</element>
+					<element>
+						<action id="forgotPassword" eventId="form-auth" onSuccess="webform/login">
+							<params>
+								<param name="form_action">${form_action}</param>
+							</params>
+							<condition expression="${action eq 'forgotPassword'}" />
+						</action>
+					</element>
+				</section>
+			</structure>
+		</page>
+		<page id="digestlogin">
+			<config>
+				<title />
+				<description />
+				<template path="page-webform.xsl" />
+				<url-schema>
+					<url-params />
+					<get-params>
+						<get-param name="digest" />
+						<get-param name="action" />
+					</get-params>
+					<post-params />
+				</url-schema>
+			</config>
+			<structure>
+				<section>
+					<element>
+						<action id="login" eventId="digest-login">
+							<condition expression="${not empty digest}" />
+						</action>
+					</element>
+					<element>
+						<action id="logout" eventId="form-auth">
+							<params>
+								<param name="action">${action}</param>
+							</params>
+							<condition expression="${action eq 'logout'}" />
+						</action>
+					</element>
+				</section>
+			</structure>
+		</page>
+		<page id="ntlmlogin">
+			<config>
+				<title />
+				<description />
+				<template path="page-webform.xsl" output-type="portal" />
+				<template path="page-webform.xsl" output-type="webgui" />
+				<url-schema>
+					<url-params />
+					<get-params>
+						<get-param name="action" />
+					</get-params>
+					<post-params />
+				</url-schema>
+			</config>
+			<structure>
+				<section>
+					<element>
+						<action id="login" eventId="form-ntlm" />
+					</element>
+					<element>
+						<action id="logout" eventId="form-auth">
+							<params>
+								<param name="action">${action}</param>
+							</params>
+							<condition expression="${action eq 'logout'}" />
+						</action>
+					</element>
+				</section>
+			</structure>
+		</page>
+	</pages>
+</applicationRootConfig>
+
