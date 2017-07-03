@@ -70,7 +70,7 @@ public class LoginUserTest extends BaseLoginTest {
 		Assert.assertNull(environment.getSubject());
 		FieldProcessor fp = callableAction.perform();
 		Message message = fp.getMessages().getMessageList().get(0);
-		Assert.assertEquals("Falscher Benutzername oder Passwort", message.getContent());
+		Assert.assertEquals("Wrong username or password", message.getContent());
 		Assert.assertNull(environment.getSubject());
 	}
 

@@ -68,7 +68,7 @@ public class LoginFormTest extends TestBase {
 		Mockito.when(mock.getLanguage()).thenReturn(Locale.GERMAN.getLanguage());
 		context.getBean(LoginForm.class).getData(site, application, environment, null, request, null);
 		Assert.assertEquals(Locale.GERMAN.getLanguage(), environment.getSubject().getLanguage());
-		Assert.assertEquals(Locale.GERMAN, environment.getLocale());
+		Assert.assertEquals(Locale.ENGLISH, environment.getLocale());
 	}
 
 	@Test
