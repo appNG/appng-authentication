@@ -81,7 +81,7 @@ public class PasswordReset extends AbstractLogon {
 	}
 
 	/**
-	 * resets the password or send password reset mail. Returns true if properties of the {@link #AuthSubject} has
+	 * resets the password or send password reset mail. Returns true if properties of the {@link AuthSubject} has
 	 * changed which have to be saved
 	 * 
 	 * @param site
