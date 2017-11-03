@@ -4,4 +4,4 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 
 == Welcome to appNG Authentication
 
-appNG Authentication is an appNG core application, providing different authentication mechanisms for appNG. 
+appNG Authentication is an appNG privileged application, providing different authentication mechanisms for appNG. 
