@@ -15,6 +15,7 @@
 		<urlAlias>authentication</urlAlias>
 		<displayName>Authentication</displayName>
 		<longDescription><![CDATA[This application provides several authentication mechanisms (Formular, NTML, Digest).]]></longDescription>
+		<asciidocPhase>deploy</asciidocPhase>
 	</properties>
 
 	<parent>
@@ -161,37 +162,60 @@
 			<plugin>
 				<groupId>org.asciidoctor</groupId>
 				<artifactId>asciidoctor-maven-plugin</artifactId>
-				<version>1.5.2.1</version>
+				<version>1.5.5</version>
 				<dependencies>
 					<dependency>
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctorj-pdf</artifactId>
-						<version>1.5.0-alpha.9</version>
+						<version>1.5.0-alpha.15</version>
 					</dependency>
 				</dependencies>
-
+				<configuration>
+					<attributes>
+						<icons>font</icons>
+						<pagenums />
+						<toc />
+						<toclevels>3</toclevels>
+						<idprefix />
+						<idseparator>-</idseparator>
+						<numbered>true</numbered>
+						<project-version>${project.version}</project-version>
+						<project-name>${project.name}</project-name>
+					</attributes>
+				</configuration>
 				<executions>
 					<execution>
-						<configuration>
-							<backend>pdf</backend>
-							<sourceHighlighter>coderay</sourceHighlighter>
-							<attributes>
-								<icons>font</icons>
-								<pagenums />
-								<toc />
-								<toclevels>3</toclevels>
-								<idprefix />
-								<idseparator>-</idseparator>
-								<numbered>true</numbered>
-								<project-version>${project.version}</project-version>
-								<project-name>${project.name}</project-name>
-							</attributes>
-						</configuration>
-						<id>output-html</id>
-						<phase>generate-resources</phase>
+						<id>html</id>
+						<phase>${asciidocPhase}</phase>
 						<goals>
 							<goal>process-asciidoc</goal>
 						</goals>
+						<configuration>
+							<backend>html5</backend>
+							<sectids>true</sectids>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+							<sourceDocumentName>readme.adoc</sourceDocumentName>
+							<attributes>
+								<linkcss>true</linkcss>
+								<icons>font</icons>
+								<sectanchors>true</sectanchors>
+								<stylesheet>appng.css</stylesheet>
+							</attributes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>pdf</id>
+						<phase>${asciidocPhase}</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>pdf</backend>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<sourceDocumentName>readme.adoc</sourceDocumentName>
+							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

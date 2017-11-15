@@ -28,7 +28,7 @@
 		<property id="successPage" description="The path the user is forwarded to after successfull login">/appng-manager</property>
 		<property id="enableDeeplinks" description="set to true to forward the user to the originally requested page">true</property>
 		<property id="digestLoginRedirectWithServletPath" description="set to true to redirect to the original servlet path after a digest login (without query params)">false</property>
-		<property id="mailFrom" description="the sender address for emails send during passwort retrieval">support@aiticon.de</property>
+		<property id="mailFrom" description="the sender address for emails send during passwort retrieval">support@example.com</property>
 		<property id="digestMaxValidity" description="the maximum validity of a login digest in minutes">3</property>
 	</properties>
 	
