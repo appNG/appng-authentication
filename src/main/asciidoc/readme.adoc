@@ -1,24 +1,25 @@
 = {project-name}
+Matthias Müller <matthias.mueller@appng.org>
 Build Version  {project-version} created {localdate}
-:title-logo-image: appng_a.png
+:title-logo-image: images/appng_a.png
 
 == Purpose
-{project-name} offers several login-mechanisms for appNG users.
+{project-name} is an appNG privileged application that offers several login-mechanisms.
 
 == Configuration
 
 [options="header"]
 |===
 | name | type | description | default
-| successPage | text | The path the user is forwarded to after successfull login | /appng-manager
-| digestMaxValidity | int | the maximum validity of a login digest in minutes | 3
-| mailFrom| text | the sender address for emails send during passwort retrieval | support@aiticon.de
-| enableDeeplinks | boolean | set to true to forward the user to the originally requested page | true
+| successPage | text | The path the user is forwarded to after a successful login | `/appng-manager`
+| digestMaxValidity | int | the maximum validity of a login digest in minutes | `3`
+| mailFrom| text | the sender address for e-mails send during password retrieval | `support@example.com`
+| enableDeeplinks | boolean | set to true to forward the user to the originally requested page | `true`
 |=== 
 
 == Login Mechanisms
 === Form based Login
-This is the default login mechanism requiring a username and a password. Both are managed in the appNG manager application.
+This is the default login mechanism requiring a user name and a password. Both are managed in the appNG manager application.
 
 === Digest Login
 The digest login offers a digest based authentication.
