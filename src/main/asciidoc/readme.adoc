@@ -4,7 +4,7 @@ Build Version  {project-version} created {localdate}
 :title-logo-image: images/appng_a.png
 
 == Purpose
-{project-name} offers several login-mechanisms for appNG users.
+{project-name} is an aPPNG privileged application that offers several login-mechanisms.
 
 == Configuration
 
