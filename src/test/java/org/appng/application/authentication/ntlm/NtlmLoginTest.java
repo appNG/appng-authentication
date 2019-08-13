@@ -49,7 +49,7 @@ public class NtlmLoginTest extends BaseLoginTest {
 		doTest();
 		Assert.assertNotNull(environment.getSubject());
 		Mockito.verify(site).sendRedirect(Mockito.eq(environment), Mockito.eq("/manager/appng/appng-manager"),
-				Mockito.eq(HttpStatus.MOVED_PERMANENTLY.value()));
+				Mockito.eq(HttpStatus.FOUND.value()));
 	}
 
 	@Test
