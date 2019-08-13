@@ -26,6 +26,7 @@ import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
+import org.appng.application.authentication.MessageConstants;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -39,7 +40,7 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 		if (environment.isSubjectAuthenticated()) {
 			Locale locale = environment.getLocale();
 			getCoreService(application).logoutSubject(environment);
-			String message = application.getMessage(locale, MSSG_LOGOUT_SUCCESSFUL);
+			String message = application.getMessage(locale, MessageConstants.LOGOUT_SUCCESSFUL);
 			fp.addOkMessage(message);
 		}
 		String forward = request.getParameter("forward");

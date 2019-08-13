@@ -25,6 +25,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.AbstractLogon;
+import org.appng.application.authentication.AuthenticationSettings;
 import org.appng.application.authentication.webform.LoginData;
 import org.appng.core.security.DigestUtil;
 import org.appng.core.security.DigestValidator;
@@ -38,7 +39,6 @@ import org.springframework.http.HttpStatus;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- * 
  * @see DigestUtil
  * @see DigestValidator
  * @see CoreService#login(Environment, String, int)
@@ -46,14 +46,13 @@ import org.springframework.http.HttpStatus;
 public class DigestLogin extends AbstractLogon {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DigestLogin.class);
-	private static final String PROP_DIGEST_LOGIN_REDIRECT_WITH_SERVLET_PATH = "digestLoginRedirectWithServletPath";
-	private static final String PROP_DIGEST_MAX_VALIDITY = "digestMaxValidity";
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
 		String digest = request.getParameter("digest");
 		if (StringUtils.isNotBlank(digest)) {
-			Integer digestMaxValidity = application.getProperties().getInteger(PROP_DIGEST_MAX_VALIDITY);
+			Integer digestMaxValidity = application.getProperties()
+					.getInteger(AuthenticationSettings.DIGEST_MAX_VALIDITY);
 			DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 			String username = validator.getUsername();
 			LOGGER.debug("received login digest for user {}", username);
@@ -75,11 +74,12 @@ public class DigestLogin extends AbstractLogon {
 			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
 			if (StringUtils.isNotBlank(target)) {
 				target = target.substring(managerPath.length());
-			} else if (application.getProperties().getBoolean(PROP_DIGEST_LOGIN_REDIRECT_WITH_SERVLET_PATH)) {
+			} else if (application.getProperties()
+					.getBoolean(AuthenticationSettings.DIGEST_LOGIN_REDIRECT_WITH_SERVLET_PATH)) {
 				target = ((DefaultEnvironment) environment).getServletRequest().getServletPath();
 				target = target.substring(managerPath.length());
 			} else {
-				target = application.getProperties().getString(SUCCESS_PAGE);
+				target = application.getProperties().getString(AuthenticationSettings.SUCCESS_PAGE);
 			}
 			processLogonResult(site, application, environment, options, fp, success, target, HttpStatus.FOUND, true);
 		}

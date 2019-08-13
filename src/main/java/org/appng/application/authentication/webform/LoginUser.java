@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Performs a user login with a username and a password.
  * 
  * @author Matthias Herlitzius
- * 
  * @see CoreService#login(Site, Environment, String, String)
  */
 public class LoginUser extends AbstractLogon {
