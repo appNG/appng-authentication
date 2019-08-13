@@ -45,11 +45,11 @@ import org.appng.mail.Mail.RecipientType;
 import org.appng.mail.MailException;
 import org.appng.mail.MailTransport;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PasswordReset extends AbstractLogon {
-
-	private static final Logger logger = LoggerFactory.getLogger(PasswordReset.class);
 
 	private static final String UTF_8 = "UTF-8";
 
@@ -154,14 +154,14 @@ public class PasswordReset extends AbstractLogon {
 			}
 
 		} catch (MailException m) {
-			logger.error("error while sending mail", m);
+			LOGGER.error("error while sending mail", m);
 			errorMessage = application.getMessage(locale, MessageConstants.SEND_ERROR);
 			fp.addErrorMessage(errorMessage);
 		} catch (UnsupportedEncodingException e) {
-			logger.error("error during action " + action, e);
+			LOGGER.error("error during action " + action, e);
 			fp.addErrorMessage(errorMessage);
 		} catch (BusinessException e) {
-			logger.error("error during action " + action, e);
+			LOGGER.error("error during action " + action, e);
 			fp.addErrorMessage(errorMessage);
 		}
 		return result;
@@ -187,6 +187,10 @@ public class PasswordReset extends AbstractLogon {
 		mail.addReceiver(email, RecipientType.TO);
 		mail.setTextContent(content);
 		mailTransport.send(mail);
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 
 }

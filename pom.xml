@@ -159,7 +159,7 @@
 					</execution>
 				</executions>
 			</plugin>
-						<plugin>
+			<plugin>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-maven-plugin</artifactId>
 				<version>${appNGVersion}</version>
@@ -283,19 +283,32 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-search</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-testsupport</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-application-bom</artifactId>
+				<type>pom</type>
+				<scope>import</scope>
+				<version>${appNGVersion}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

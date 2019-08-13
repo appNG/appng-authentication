@@ -15,6 +15,11 @@
  */
 package org.appng.application.authentication.webform;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class LoginData {
 
 	private String username;
@@ -23,43 +28,4 @@ public class LoginData {
 	private String passwordConfirmation;
 	private String digest;
 
-	public String getOldpassword() {
-		return oldpassword;
-	}
-
-	public void setOldpassword(String oldpassword) {
-		this.oldpassword = oldpassword;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getPasswordConfirmation() {
-		return passwordConfirmation;
-	}
-
-	public void setPasswordConfirmation(String passwordConfirmation) {
-		this.passwordConfirmation = passwordConfirmation;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getDigest() {
-		return digest;
-	}
-
-	public void setDigest(String digest) {
-		this.digest = digest;
-	}
 }

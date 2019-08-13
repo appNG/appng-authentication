@@ -27,12 +27,16 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.MessageConstants;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class LogoutUser extends AbstractLogon implements ActionProvider<LoginData> {
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
@@ -52,6 +56,10 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 			LOGGER.info("forwarding to {}", forward);
 			site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
 		}
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 
 }

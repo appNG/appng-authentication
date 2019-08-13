@@ -27,6 +27,9 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.webform.LoginData;
 import org.appng.core.service.CoreService;
+import org.slf4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Performs a login using the current {@link Principal}.
@@ -34,6 +37,7 @@ import org.appng.core.service.CoreService;
  * @author Matthias Herlitzius
  * @see CoreService#login(Environment, Principal)
  */
+@Slf4j
 public class NtlmLogin extends AbstractLogon {
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
@@ -43,6 +47,10 @@ public class NtlmLogin extends AbstractLogon {
 			boolean success = getCoreService(application).login(environment, principal);
 			processLogonResult(site, application, environment, options, fp, success);
 		}
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 
 }

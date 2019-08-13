@@ -27,12 +27,9 @@ import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.application.authentication.webform.LoginData;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 public abstract class AbstractLogon implements ActionProvider<LoginData> {
-
-	protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractLogon.class);
 
 	public static final String PRE_LOGIN_PATH = "preLoginPath";
 
@@ -108,7 +105,5 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 		return env.isSubjectAuthenticated();
 	}
 
-	protected Logger log() {
-		return LOGGER;
-	}
+	protected abstract Logger log();
 }

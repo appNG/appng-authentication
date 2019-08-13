@@ -31,8 +31,9 @@ import org.appng.core.security.DigestUtil;
 import org.appng.core.security.DigestValidator;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A login method that takes the request parameter "digest" and tries to authenticate the user by the given value.
@@ -43,9 +44,8 @@ import org.springframework.http.HttpStatus;
  * @see DigestValidator
  * @see CoreService#login(Environment, String, int)
  */
+@Slf4j
 public class DigestLogin extends AbstractLogon {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DigestLogin.class);
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {

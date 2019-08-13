@@ -40,11 +40,11 @@ import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.PasswordHandler;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PasswordChange extends AbstractLogon implements DataProvider {
-
-	private static final Logger logger = LoggerFactory.getLogger(PasswordChange.class);
 
 	private static final String PREVIOUS_PATH = "previousPath";
 
@@ -93,7 +93,7 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 						}
 					} catch (BusinessException e) {
 						fp.addErrorMessage(errorMessage);
-						logger.error("error while changing password:", e);
+						LOGGER.error("error while changing password:", e);
 					}
 				} else {
 					errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_ERROR);
@@ -119,5 +119,9 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 			dataContainer.setItem(loginData);
 		}
 		return dataContainer;
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 }
