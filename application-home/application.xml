@@ -30,6 +30,7 @@
 		<property id="digestLoginRedirectWithServletPath" description="set to true to redirect to the original servlet path after a digest login (without query params)">false</property>
 		<property id="mailFrom" description="the sender address for emails send during passwort retrieval">support@example.com</property>
 		<property id="digestMaxValidity" description="the maximum validity of a login digest in minutes">3</property>
+		<property id="loginForwardStatus" description="The HTTP Status to use when forwaring the user after login">302</property>
 	</properties>
 	
 </application>

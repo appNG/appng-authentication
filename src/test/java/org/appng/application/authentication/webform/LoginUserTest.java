@@ -21,7 +21,6 @@ import org.appng.api.model.Subject;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.BaseLoginTest;
-import org.appng.application.authentication.webform.LoginData;
 import org.appng.xml.platform.Message;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -53,7 +52,7 @@ public class LoginUserTest extends BaseLoginTest {
 		Assert.assertEquals("subject_username-3", loginSubject.getRealname());
 
 		Mockito.verify(site).sendRedirect(Mockito.eq(environment), Mockito.eq("/manager/appng/appng-manager"),
-				Mockito.eq(HttpStatus.MOVED_PERMANENTLY.value()));
+				Mockito.eq(HttpStatus.FOUND.value()));
 		((DefaultEnvironment) environment).logoutSubject();
 	}
 

@@ -26,7 +26,6 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Subject;
-import org.appng.application.authentication.webform.LoginForm;
 import org.appng.testsupport.TestBase;
 import org.junit.Assert;
 import org.junit.Before;
