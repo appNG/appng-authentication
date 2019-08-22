@@ -105,7 +105,7 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 
 		String successPageGroupwise = application.getProperties()
 				.getClob(AuthenticationSettings.SUCCESS_PAGE_GROUPWISE);
-		if (StringUtils.isNotBlank(successPageGroupwise)) {
+		if (success && StringUtils.isNotBlank(successPageGroupwise)) {
 			List<String> groupNames = env.getSubject().getGroups().stream().map(Group::getName)
 					.collect(Collectors.toList());
 			String[] successPagesForGroup = successPageGroupwise.split(StringUtils.LF);
@@ -116,7 +116,7 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 					String groupName = StringUtils.trim(pair[0]);
 					if (groupNames.contains(groupName)) {
 						successPage = StringUtils.trim(pair[1]);
-						log().debug("Found matching target {} for group {}.", successPage, groupName, successPage);
+						log().debug("Found matching target {} for group {}: {}", successPage, groupName, successPage);
 						break;
 					}
 				}
