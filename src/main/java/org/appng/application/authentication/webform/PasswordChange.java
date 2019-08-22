@@ -19,8 +19,6 @@ import static org.appng.api.Scope.SESSION;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.DataContainer;
@@ -40,6 +38,7 @@ import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.PasswordHandler;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,7 +85,7 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 							service.updateSubject(subject);
 							fp.addOkMessage(message);
 							String lastUrl = environment.getAttribute(SESSION, PREVIOUS_PATH);
-							site.sendRedirect(environment, lastUrl, HttpServletResponse.SC_MOVED_TEMPORARILY);
+							site.sendRedirect(environment, lastUrl, HttpStatus.FOUND.value());
 						} else {
 							errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_EMPTY);
 							fp.addErrorMessage(errorMessage);
@@ -112,7 +111,7 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 		DataContainer dataContainer = new DataContainer(fp);
 		if (subject == null) {
 			String baseUrl = env.getAttribute(Scope.REQUEST, BASE_URL);
-			site.sendRedirect(env, baseUrl, HttpServletResponse.SC_MOVED_TEMPORARILY);
+			site.sendRedirect(env, baseUrl, HttpStatus.FOUND.value());
 		} else {
 			LoginData loginData = new LoginData();
 			loginData.setUsername(subject.getName());

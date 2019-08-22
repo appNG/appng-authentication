@@ -7,6 +7,7 @@
 	<action id="login">
 		<config>
 			<title>login.digest</title>
+			<params />
 		</config>
 		<condition />
 		<datasource id="loginData" />

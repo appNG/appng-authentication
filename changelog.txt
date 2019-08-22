@@ -1,0 +1,14 @@
+Release Notes - appNG Authentication - Version 1.11.2 (2017-11-16)
+------------------------------------------------------------------
+* [AUTH-12] - Release 1.11.2 is not available in Maven Central
+* [AUTH-11] - Enhance documentation
+* [AUTH-10] - Build release 1.11.2 against appNG 1.15.0
+* [AUTH-9]  - Update license headers
+* [AUTH-8]  - Fix maven build warning regarding missing version for maven-source-plugin
+* [AUTH-6]  - add code of conduct
+* [AUTH-7]  - add "contributing" file
+
+Release Notes - appNG Authentication - Version 1.11.1 (2017-07-04)
+------------------------------------------------------------------
+* [AUTH-3]  - Build Release 1.11.1 and deploy to Maven Central
+* [AUTH-2]  - Failing tests when building with appNG 1.14.1

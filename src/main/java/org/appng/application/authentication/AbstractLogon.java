@@ -15,6 +15,9 @@
  */
 package org.appng.application.authentication;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ActionProvider;
 import org.appng.api.Environment;
@@ -22,6 +25,7 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.Options;
 import org.appng.api.Scope;
 import org.appng.api.model.Application;
+import org.appng.api.model.Group;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.application.authentication.webform.LoginData;
@@ -98,6 +102,27 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 	protected void processLogonResult(Site site, Application application, Environment env, Options options,
 			FieldProcessor fp, boolean success) {
 		String successPage = application.getProperties().getString(AuthenticationSettings.SUCCESS_PAGE);
+
+		String successPageGroupwise = application.getProperties()
+				.getClob(AuthenticationSettings.SUCCESS_PAGE_GROUPWISE);
+		if (StringUtils.isNotBlank(successPageGroupwise)) {
+			List<String> groupNames = env.getSubject().getGroups().stream().map(Group::getName)
+					.collect(Collectors.toList());
+			String[] successPagesForGroup = successPageGroupwise.split(StringUtils.LF);
+			for (String target : successPagesForGroup) {
+				target = StringUtils.trim(target);
+				if (!target.startsWith("#")) {
+					String[] pair = target.split("=");
+					String groupName = StringUtils.trim(pair[0]);
+					if (groupNames.contains(groupName)) {
+						successPage = StringUtils.trim(pair[1]);
+						log().debug("Found matching target {} for group {}.", successPage, groupName, successPage);
+						break;
+					}
+				}
+			}
+		}
+
 		processLogonResult(site, application, env, options, fp, success, successPage);
 	}
 
