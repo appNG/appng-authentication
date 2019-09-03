@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,13 @@ import org.appng.application.authentication.AbstractLogon;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LoginForm implements DataProvider {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(LoginForm.class);
 	private static final String PARAM_LANG = "lang";
 	private static final String PARAM_ACTION = "action";
 	private static final String SLASH = "/";

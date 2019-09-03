@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import static org.appng.api.Scope.SESSION;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.DataContainer;
@@ -35,25 +33,21 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.application.authentication.AbstractLogon;
+import org.appng.application.authentication.MessageConstants;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.PasswordHandler;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PasswordChange extends AbstractLogon implements DataProvider {
-
-	protected static final String MSSG_USER_UNKNOWN = "user.unknown";
-
-	private static final Logger logger = LoggerFactory.getLogger(PasswordChange.class);
 
 	private static final String PREVIOUS_PATH = "previousPath";
 
 	private static final String BASE_URL = "baseUrl";
-
-	private static final String MSSG_EMPTY_OLD_PASSWORD = "oldpassword.empty";
-
-	private static final String MSSG_OLD_PASSWORD_ERROR = "oldpassword.error";
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
@@ -64,12 +58,12 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 		String errorMessage = null;
 		String message = null;
 		if (null == subject) {
-			errorMessage = application.getMessage(environment.getLocale(), MSSG_USER_UNKNOWN);
+			errorMessage = application.getMessage(environment.getLocale(), MessageConstants.USER_UNKNOWN);
 			fp.addErrorMessage(errorMessage);
 		} else {
 			Locale locale = new Locale(subject.getLanguage());
 			loginData.setUsername(username);
-			errorMessage = application.getMessage(locale, MSSG_PASSWORD_CHANGE_ERROR);
+			errorMessage = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE_ERROR);
 			String password = loginData.getPassword();
 
 			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
@@ -87,25 +81,25 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 						Boolean updatePassword = service.updatePassword(password.toCharArray(),
 								passwordNew.toCharArray(), subject);
 						if (updatePassword) {
-							message = application.getMessage(locale, MSSG_PASSWORD_CHANGE);
+							message = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE);
 							service.updateSubject(subject);
 							fp.addOkMessage(message);
 							String lastUrl = environment.getAttribute(SESSION, PREVIOUS_PATH);
-							site.sendRedirect(environment, lastUrl, HttpServletResponse.SC_MOVED_TEMPORARILY);
+							site.sendRedirect(environment, lastUrl, HttpStatus.FOUND.value());
 						} else {
-							errorMessage = application.getMessage(locale, MSSG_EMPTY_OLD_PASSWORD);
+							errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_EMPTY);
 							fp.addErrorMessage(errorMessage);
 						}
 					} catch (BusinessException e) {
 						fp.addErrorMessage(errorMessage);
-						logger.error("error while changing password:", e);
+						LOGGER.error("error while changing password:", e);
 					}
 				} else {
-					errorMessage = application.getMessage(locale, MSSG_OLD_PASSWORD_ERROR);
+					errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_ERROR);
 					fp.addErrorMessage(errorMessage);
 				}
 			} else {
-				errorMessage = application.getMessage(locale, MSSG_EMPTY_OLD_PASSWORD);
+				errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_EMPTY);
 				fp.addErrorMessage(errorMessage);
 			}
 		}
@@ -116,13 +110,17 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 		Subject subject = env.getSubject();
 		DataContainer dataContainer = new DataContainer(fp);
 		if (subject == null) {
-			String baseUrl = (String) env.getAttribute(Scope.REQUEST, BASE_URL);
-			site.sendRedirect(env, baseUrl, HttpServletResponse.SC_MOVED_TEMPORARILY);
+			String baseUrl = env.getAttribute(Scope.REQUEST, BASE_URL);
+			site.sendRedirect(env, baseUrl, HttpStatus.FOUND.value());
 		} else {
 			LoginData loginData = new LoginData();
 			loginData.setUsername(subject.getName());
 			dataContainer.setItem(loginData);
 		}
 		return dataContainer;
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 }

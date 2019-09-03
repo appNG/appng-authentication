@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,17 @@ import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
+import org.appng.application.authentication.MessageConstants;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class LogoutUser extends AbstractLogon implements ActionProvider<LoginData> {
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
@@ -39,7 +44,7 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 		if (environment.isSubjectAuthenticated()) {
 			Locale locale = environment.getLocale();
 			getCoreService(application).logoutSubject(environment);
-			String message = application.getMessage(locale, MSSG_LOGOUT_SUCCESSFUL);
+			String message = application.getMessage(locale, MessageConstants.LOGOUT_SUCCESSFUL);
 			fp.addOkMessage(message);
 		}
 		String forward = request.getParameter("forward");
@@ -51,6 +56,10 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 			LOGGER.info("forwarding to {}", forward);
 			site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
 		}
+	}
+
+	protected Logger log() {
+		return LOGGER;
 	}
 
 }

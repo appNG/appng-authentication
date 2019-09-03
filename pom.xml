@@ -5,7 +5,7 @@
 	<artifactId>appng-authentication</artifactId>
 	<packaging>jar</packaging>
 	<name>appNG Authentication</name>
-	<version>1.11.2</version>
+	<version>1.12.0</version>
 	<description><![CDATA[Authentication Application]]></description>
 	<url>https://www.appng.org</url>
 
@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-application-parent</artifactId>
-		<version>1.15.0</version>
+		<version>1.19.1</version>
 	</parent>
 
 	<scm>
@@ -160,6 +160,70 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-maven-plugin</artifactId>
+				<version>${appNGVersion}</version>
+				<executions>
+					<execution>
+						<id>applicationConstants</id>
+						<goals>
+							<goal>generateApplicationConstants</goal>
+						</goals>
+						<configuration>
+							<filePath>application-home/application.xml</filePath>
+							<targetClass>org.appng.application.authentication.AuthenticationSettings</targetClass>
+							<outfolder>target/generated-sources/constants</outfolder>
+						</configuration>
+					</execution>
+					<execution>
+						<id>messageConstants</id>
+						<goals>
+							<goal>generateMessageConstants</goal>
+						</goals>
+						<configuration>
+							<filePath>application-home/dictionary/authentication-messages.properties</filePath>
+							<targetClass>org.appng.application.authentication.MessageConstants</targetClass>
+							<outfolder>target/generated-sources/constants</outfolder>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.appng</groupId>
+						<artifactId>appng-xmlapi</artifactId>
+						<version>${appNGVersion}</version>
+					</dependency>
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>2.3.1</version>
+					</dependency>
+					<dependency>
+						<groupId>commons-io</groupId>
+						<artifactId>commons-io</artifactId>
+						<version>2.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/constants</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.asciidoctor</groupId>
 				<artifactId>asciidoctor-maven-plugin</artifactId>
 				<version>1.5.5</version>
@@ -224,19 +288,32 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-search</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-testsupport</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-application-bom</artifactId>
+				<type>pom</type>
+				<scope>import</scope>
+				<version>${appNGVersion}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

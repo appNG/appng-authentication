@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,17 @@ import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Performs a user login with a username and a password.
  * 
  * @author Matthias Herlitzius
- * 
  * @see CoreService#login(Site, Environment, String, String)
  */
+@Slf4j
 public class LoginUser extends AbstractLogon {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(LoginUser.class);
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request container,
 			LoginData loginData, FieldProcessor fp) {
@@ -47,7 +46,6 @@ public class LoginUser extends AbstractLogon {
 		}
 	}
 
-	@Override
 	protected Logger log() {
 		return LOGGER;
 	}
