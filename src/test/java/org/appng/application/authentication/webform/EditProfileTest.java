@@ -56,6 +56,7 @@ public class EditProfileTest extends BaseLoginTest {
 		// options for timezone
 		differenceListener.ignoreDifference("/action/data/selection/optionGroup");
 		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option");
+		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option/@name");
 		validate(editProfile.getAction(), differenceListener);
 	}
 
