@@ -54,10 +54,12 @@ public class EditProfileTest extends BaseLoginTest {
 		// lastLogin
 		differenceListener.ignoreDifference("/action/data/result/field/value/text()");
 		// options for timezone
-		differenceListener.ignoreDifference("/action/data/selection/optionGroup");
-		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option");
-		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option/@name");
-		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option/@value");
+		String optGroup = "/action/data/selection/optionGroup";
+		differenceListener.ignoreDifference(optGroup);
+		differenceListener.ignoreDifference(optGroup + "/option");
+		differenceListener.ignoreDifference(optGroup + "/option/@name");
+		differenceListener.ignoreDifference(optGroup + "/option/@value");
+		differenceListener.ignoreDifference(optGroup + "/option/@selected");
 		validate(editProfile.getAction(), differenceListener);
 	}
 
