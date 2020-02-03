@@ -443,7 +443,7 @@
 				<option value="Europe/Athens" name="Athens" selected="false" />
 				<option value="Europe/Belfast" name="Belfast" selected="false" />
 				<option value="Europe/Belgrade" name="Belgrade" selected="false" />
-				<option value="Europe/Berlin" name="Berlin" selected="true" />
+				<option value="Europe/Berlin" name="Berlin" selected="false" />
 				<option value="Europe/Bratislava" name="Bratislava" selected="false" />
 				<option value="Europe/Brussels" name="Brussels" selected="false" />
 				<option value="Europe/Bucharest" name="Bucharest" selected="false" />
@@ -476,7 +476,7 @@
 				<option value="Europe/Podgorica" name="Podgorica" selected="false" />
 				<option value="Europe/Prague" name="Prague" selected="false" />
 				<option value="Europe/Riga" name="Riga" selected="false" />
-				<option value="Europe/Rome" name="Rome" selected="false" />
+				<option value="Europe/Rome" name="Rome" selected="true" />
 				<option value="Europe/Samara" name="Samara" selected="false" />
 				<option value="Europe/San_Marino" name="San Marino" selected="false" />
 				<option value="Europe/Sarajevo" name="Sarajevo" selected="false" />

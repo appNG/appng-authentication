@@ -63,22 +63,26 @@ public class EditProfile implements ActionProvider<SubjectImpl>, DataProvider {
 			FieldProcessor fp) {
 		DataContainer dataContainer = new DataContainer(fp);
 		Subject envSubject = env.getSubject();
+		String timeZone;
+		String language;
 		if (!UserType.LOCAL_USER.equals(envSubject.getUserType())) {
 			fp.getFields().forEach(f -> f.setReadonly(Boolean.TRUE.toString()));
 			fp.addNoticeMessage(req.getMessage(MessageConstants.LDAP_USER_NOT_EDITABLE));
+			timeZone = envSubject.getTimeZone();
+			language = envSubject.getLanguage();
 			dataContainer.setItem(envSubject);
 		} else {
 			Subject subject = coreService.getSubjectByName(envSubject.getAuthName(), false);
+			timeZone = subject.getTimeZone();
+			language = subject.getLanguage();
 			dataContainer.setItem(subject);
 		}
 
 		List<String> languages = site.getProperties().getList(SiteProperties.SUPPORTED_LANGUAGES, ",");
 		Selection languageSelection = new SelectionBuilder<String>("language").type(SelectionType.SELECT)
-				.title(MessageConstants.LANGUAGE).select(env.getLocale().getLanguage()).options(languages).build();
+				.title(MessageConstants.LANGUAGE).select(language).options(languages).build();
 		dataContainer.getSelections().add(languageSelection);
-
-		Selection tzSelection = getTimeZoneSelection(env.getTimeZone().getID());
-		dataContainer.getSelections().add(tzSelection);
+		dataContainer.getSelections().add(getTimeZoneSelection(timeZone));
 		return dataContainer;
 	}
 
@@ -103,7 +107,8 @@ public class EditProfile implements ActionProvider<SubjectImpl>, DataProvider {
 				.title(MessageConstants.TIME_ZONE).build();
 		OptionGroupFactory optionGroupFactory = new OptionGroupFactory();
 		for (Entry<String, List<NamedTimeZone>> zone : new TreeMap<>(zonesPerRegion).entrySet()) {
-			OptionGroup zoneGroup = optionGroupFactory.fromNamed(zone.getKey(), zone.getKey(), zone.getValue(), selected);
+			OptionGroup zoneGroup = optionGroupFactory.fromNamed(zone.getKey(), zone.getKey(), zone.getValue(),
+					selected);
 			tzSelection.getOptionGroups().add(zoneGroup);
 		}
 		return tzSelection;
