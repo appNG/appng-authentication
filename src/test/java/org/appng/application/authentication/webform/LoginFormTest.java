@@ -18,7 +18,6 @@ package org.appng.application.authentication.webform;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 import org.appng.api.Scope;
 import org.appng.api.Session;
@@ -37,14 +36,16 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(initializers = LoginFormTest.class)
+@ContextConfiguration(locations = { TestBase.TESTCONTEXT_JPA,
+		TestBase.TESTCONTEXT_CORE }, initializers = LoginFormTest.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class LoginFormTest extends TestBase {
 
-	@Override
-	protected Properties getProperties() {
-		return new Properties();
+	public LoginFormTest() {
+		super("appng-authentication", "application-home");
+		setEntityPackage("org.appng.core.domain");
+		setRepositoryBase("org.appng.core.repository");
 	}
 
 	@Before

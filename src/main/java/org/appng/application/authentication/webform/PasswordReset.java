@@ -45,13 +45,19 @@ import org.appng.mail.Mail.RecipientType;
 import org.appng.mail.MailException;
 import org.appng.mail.MailTransport;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class PasswordReset extends AbstractLogon {
 
 	private static final String UTF_8 = "UTF-8";
+
+	public PasswordReset(CoreService coreService) {
+		super(coreService);
+	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
@@ -64,8 +70,8 @@ public class PasswordReset extends AbstractLogon {
 		} else {
 			String email = subject.getEmail();
 			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
-			doReset(site, application, environment, request, fp, service, subject, passwordPolicy,
-					subject.getName(), email);
+			doReset(site, application, environment, request, fp, service, subject, passwordPolicy, subject.getName(),
+					email);
 		}
 	}
 
@@ -73,16 +79,16 @@ public class PasswordReset extends AbstractLogon {
 	 * resets the password or send password reset mail. Returns true if properties of the {@link AuthSubject} has
 	 * changed which have to be saved
 	 * 
-	 * @param site
-	 * @param application
-	 * @param environment
-	 * @param request
-	 * @param fp
-	 * @param service
-	 * @param subject
-	 * @param passwordPolicy
-	 * @param username
-	 * @param email
+	 * @param  site
+	 * @param  application
+	 * @param  environment
+	 * @param  request
+	 * @param  fp
+	 * @param  service
+	 * @param  subject
+	 * @param  passwordPolicy
+	 * @param  username
+	 * @param  email
 	 * @return
 	 */
 	protected boolean doReset(Site site, Application application, Environment environment, Request request,

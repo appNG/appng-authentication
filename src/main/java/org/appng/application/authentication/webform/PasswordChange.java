@@ -46,15 +46,21 @@ import org.appng.xml.platform.Pattern;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class PasswordChange extends AbstractLogon implements DataProvider {
 
 	private static final String PREVIOUS_PATH = "previousPath";
 
 	private static final String BASE_URL = "baseUrl";
+
+	public PasswordChange(CoreService coreService) {
+		super(coreService);
+	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
@@ -85,7 +91,7 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 				PasswordHandler passwordHandler = service.getDefaultPasswordHandler(subject);
 				if (passwordHandler.isValidPassword(oldpassword)) {
 					try {
-						Boolean updatePassword = service.updatePassword(password.toCharArray(),
+						boolean updatePassword = service.updatePassword(password.toCharArray(),
 								passwordNew.toCharArray(), subject);
 						if (updatePassword) {
 							message = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE);
@@ -130,17 +136,17 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 			dataContainer.setItem(loginData);
 		} else {
 			LoginData loginData = new LoginData();
-			
-			if(PasswordChangePolicy.MUST.equals(subject.getPasswordChangePolicy())) {
+
+			if (PasswordChangePolicy.MUST.equals(subject.getPasswordChangePolicy())) {
 				fp.addInvalidMessage(request.getMessage(MessageConstants.PASSWORD_MUST_CHANGE));
 			}
-			
+
 			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
 			if (passwordPolicy instanceof DefaultPasswordPolicy) {
 				FieldDef field = fp.getField("password");
 				Validation validation = new Validation();
 				field.setValidation(validation);
-				
+
 				Pattern pattern = new Pattern();
 				java.util.regex.Pattern policyPattern = DefaultPasswordPolicy.class.cast(passwordPolicy).getPattern();
 				pattern.setRegexp(policyPattern.pattern());
@@ -151,7 +157,7 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 				pattern.setMessage(mssg);
 				validation.setPattern(pattern);
 			}
-			
+
 			loginData.setUsername(subject.getName());
 			dataContainer.setItem(loginData);
 		}

@@ -69,7 +69,7 @@ public class PasswordResetTest extends BaseLoginTest {
 	@Test
 	@Transactional
 	public void testResetPassword() throws Exception {
-		new AuthenticationTestDataProvider().writeTestData(em);
+		new AuthenticationTestDataProvider(true).writeTestData(em);
 		addParameter(ACTION, RESET_PASSWORD);
 		addParameter("hash", "5Lfn2+jDr/jezUlvrMiPfYH4kI8=");
 		initParameters();

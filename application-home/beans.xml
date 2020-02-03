@@ -17,14 +17,6 @@
 		
 	<context:component-scan base-package="org.appng.application.authentication" />
 
-	<bean id="loginUser" class="org.appng.application.authentication.webform.LoginUser" scope="request" lazy-init="true" />
-	<bean id="logoutUser" class="org.appng.application.authentication.webform.LogoutUser" scope="request" lazy-init="true" />
-	<bean id="passwordReset" class="org.appng.application.authentication.webform.PasswordReset" scope="request" lazy-init="true" />
-	<bean id="digestLogin" class="org.appng.application.authentication.digest.DigestLogin" scope="request" lazy-init="true" />
-	<bean id="ntlmLogin" class="org.appng.application.authentication.ntlm.NtlmLogin" scope="request" lazy-init="true" />
-	<bean id="passwordChange" class="org.appng.application.authentication.webform.PasswordChange" scope="request" lazy-init="true" />
-	<bean id="loginForm" class="org.appng.application.authentication.webform.LoginForm" scope="request" />
-
 	<bean id="mailTransport" class="org.appng.mail.impl.DefaultTransport">
 		<constructor-arg value="${site.mailHost:localhost}" />
 		<constructor-arg value="${site.mailPort:25}" />

@@ -28,6 +28,7 @@ import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.webform.LoginData;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,16 +36,21 @@ import lombok.extern.slf4j.Slf4j;
  * Performs a login using the current {@link Principal}.
  * 
  * @author Matthias Herlitzius
- * @see CoreService#login(Environment, Principal)
+ * @see    CoreService#login(Environment, Principal)
  */
 @Slf4j
+@Service
 public class NtlmLogin extends AbstractLogon {
+
+	protected NtlmLogin(CoreService coreService) {
+		super(coreService);
+	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
 		if (!environment.isSubjectAuthenticated()) {
 			Principal principal = ((DefaultEnvironment) environment).getServletRequest().getUserPrincipal();
-			boolean success = getCoreService(application).login(environment, principal);
+			boolean success = coreService.login(environment, principal);
 			processLogonResult(site, application, environment, options, fp, success);
 		}
 	}

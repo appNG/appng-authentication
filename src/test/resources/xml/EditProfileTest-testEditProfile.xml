@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="editProfile" eventId="profileEvent" async="false">
+	<config>
+		<title id="profile.edit">Edit Profile</title>
+		<description></description>
+		<params>
+			<param name="form_action">editProfile</param>
+		</params>
+		<meta-data bindClass="org.appng.core.domain.SubjectImpl">
+			<field name="name" type="text" readonly="true" binding="name">
+				<label id="name">Name</label>
+			</field>
+			<field name="realname" type="text" binding="realname">
+				<label id="realName">Real name</label>
+				<validation>
+					<notNull>
+						<message ref="realname" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+					</notNull>
+					<size min="0" max="64">
+						<message ref="realname" class="ERROR" code="{validation.string.max}">Enter at most 64 characters</message>
+					</size>
+				</validation>
+			</field>
+			<field name="language" type="list:select" binding="language">
+				<label id="language">Language</label>
+				<validation>
+					<notNull>
+						<message ref="language" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+					</notNull>
+					<size min="2" max="3">
+						<message ref="language" class="ERROR" code="{validation.string.min.max}">Enter between 2 and 3 characters</message>
+					</size>
+				</validation>
+			</field>
+			<field name="timeZone" type="list:select" binding="timeZone">
+				<label id="timeZone">Timezone</label>
+			</field>
+			<field name="lastLogin" type="date" format="yyyy-MM-dd HH:mm:ss" readonly="true" binding="lastLogin">
+				<label id="lastLogin">Last login</label>
+			</field>
+			<field name="email" type="text" binding="email">
+				<label id="email">E-mail</label>
+				<validation>
+					<pattern regexp="^([a-zA-Z0-9_\.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]){2,}$">
+						<message ref="email" class="ERROR" code="{validation.email}">Please enter a valid e-mail address</message>
+					</pattern>
+				</validation>
+			</field>
+		</meta-data>
+	</config>
+	<condition expression="${form_action eq 'editProfile'}" />
+	<messages>
+		<message ref="editProfile" class="OK">Profil wurde gespeichert (Änderungen greifen nach dem nächsten Login).
+		</message>
+	</messages>
+	<datasource id="userProfile" />
+	<data>
+		<selection id="language" type="select">
+			<title id="language">Language</title>
+		</selection>
+		<selection id="timeZone" type="select">
+			<title id="timeZone">Timezone</title>
+			<optionGroup id="Africa">
+				<label id="Africa">Africa</label>
+				<option value="Africa/Abidjan" name="Abidjan" selected="false" />
+				<option value="Africa/Accra" name="Accra" selected="false" />
+				<option value="Africa/Addis_Ababa" name="Addis Ababa" selected="false" />
+				<option value="Africa/Algiers" name="Algiers" selected="false" />
+				<option value="Africa/Asmara" name="Asmara" selected="false" />
+				<option value="Africa/Asmera" name="Asmera" selected="false" />
+				<option value="Africa/Bamako" name="Bamako" selected="false" />
+				<option value="Africa/Bangui" name="Bangui" selected="false" />
+				<option value="Africa/Banjul" name="Banjul" selected="false" />
+				<option value="Africa/Bissau" name="Bissau" selected="false" />
+				<option value="Africa/Blantyre" name="Blantyre" selected="false" />
+				<option value="Africa/Brazzaville" name="Brazzaville" selected="false" />
+				<option value="Africa/Bujumbura" name="Bujumbura" selected="false" />
+				<option value="Africa/Cairo" name="Cairo" selected="false" />
+				<option value="Africa/Casablanca" name="Casablanca" selected="false" />
+				<option value="Africa/Ceuta" name="Ceuta" selected="false" />
+				<option value="Africa/Conakry" name="Conakry" selected="false" />
+				<option value="Africa/Dakar" name="Dakar" selected="false" />
+				<option value="Africa/Dar_es_Salaam" name="Dar es Salaam" selected="false" />
+				<option value="Africa/Djibouti" name="Djibouti" selected="false" />
+				<option value="Africa/Douala" name="Douala" selected="false" />
+				<option value="Africa/El_Aaiun" name="El Aaiun" selected="false" />
+				<option value="Africa/Freetown" name="Freetown" selected="false" />
+				<option value="Africa/Gaborone" name="Gaborone" selected="false" />
+				<option value="Africa/Harare" name="Harare" selected="false" />
+				<option value="Africa/Johannesburg" name="Johannesburg" selected="false" />
+				<option value="Africa/Juba" name="Juba" selected="false" />
+				<option value="Africa/Kampala" name="Kampala" selected="false" />
+				<option value="Africa/Khartoum" name="Khartoum" selected="false" />
+				<option value="Africa/Kigali" name="Kigali" selected="false" />
+				<option value="Africa/Kinshasa" name="Kinshasa" selected="false" />
+				<option value="Africa/Lagos" name="Lagos" selected="false" />
+				<option value="Africa/Libreville" name="Libreville" selected="false" />
+				<option value="Africa/Lome" name="Lome" selected="false" />
+				<option value="Africa/Luanda" name="Luanda" selected="false" />
+				<option value="Africa/Lubumbashi" name="Lubumbashi" selected="false" />
+				<option value="Africa/Lusaka" name="Lusaka" selected="false" />
+				<option value="Africa/Malabo" name="Malabo" selected="false" />
+				<option value="Africa/Maputo" name="Maputo" selected="false" />
+				<option value="Africa/Maseru" name="Maseru" selected="false" />
+				<option value="Africa/Mbabane" name="Mbabane" selected="false" />
+				<option value="Africa/Mogadishu" name="Mogadishu" selected="false" />
+				<option value="Africa/Monrovia" name="Monrovia" selected="false" />
+				<option value="Africa/Nairobi" name="Nairobi" selected="false" />
+				<option value="Africa/Ndjamena" name="Ndjamena" selected="false" />
+				<option value="Africa/Niamey" name="Niamey" selected="false" />
+				<option value="Africa/Nouakchott" name="Nouakchott" selected="false" />
+				<option value="Africa/Ouagadougou" name="Ouagadougou" selected="false" />
+				<option value="Africa/Porto-Novo" name="Porto-Novo" selected="false" />
+				<option value="Africa/Sao_Tome" name="Sao Tome" selected="false" />
+				<option value="Africa/Timbuktu" name="Timbuktu" selected="false" />
+				<option value="Africa/Tripoli" name="Tripoli" selected="false" />
+				<option value="Africa/Tunis" name="Tunis" selected="false" />
+				<option value="Africa/Windhoek" name="Windhoek" selected="false" />
+			</optionGroup>
+			<optionGroup id="America">
+				<label id="America">America</label>
+				<option value="America/Adak" name="Adak" selected="false" />
+				<option value="America/Anchorage" name="Anchorage" selected="false" />
+				<option value="America/Anguilla" name="Anguilla" selected="false" />
+				<option value="America/Antigua" name="Antigua" selected="false" />
+				<option value="America/Araguaina" name="Araguaina" selected="false" />
+				<option value="America/Argentina/Buenos_Aires" name="Argentina/Buenos Aires" selected="false" />
+				<option value="America/Argentina/Catamarca" name="Argentina/Catamarca" selected="false" />
+				<option value="America/Argentina/ComodRivadavia" name="Argentina/ComodRivadavia" selected="false" />
+				<option value="America/Argentina/Cordoba" name="Argentina/Cordoba" selected="false" />
+				<option value="America/Argentina/Jujuy" name="Argentina/Jujuy" selected="false" />
+				<option value="America/Argentina/La_Rioja" name="Argentina/La Rioja" selected="false" />
+				<option value="America/Argentina/Mendoza" name="Argentina/Mendoza" selected="false" />
+				<option value="America/Argentina/Rio_Gallegos" name="Argentina/Rio Gallegos" selected="false" />
+				<option value="America/Argentina/Salta" name="Argentina/Salta" selected="false" />
+				<option value="America/Argentina/San_Juan" name="Argentina/San Juan" selected="false" />
+				<option value="America/Argentina/San_Luis" name="Argentina/San Luis" selected="false" />
+				<option value="America/Argentina/Tucuman" name="Argentina/Tucuman" selected="false" />
+				<option value="America/Argentina/Ushuaia" name="Argentina/Ushuaia" selected="false" />
+				<option value="America/Aruba" name="Aruba" selected="false" />
+				<option value="America/Asuncion" name="Asuncion" selected="false" />
+				<option value="America/Atikokan" name="Atikokan" selected="false" />
+				<option value="America/Atka" name="Atka" selected="false" />
+				<option value="America/Bahia" name="Bahia" selected="false" />
+				<option value="America/Bahia_Banderas" name="Bahia Banderas" selected="false" />
+				<option value="America/Barbados" name="Barbados" selected="false" />
+				<option value="America/Belem" name="Belem" selected="false" />
+				<option value="America/Belize" name="Belize" selected="false" />
+				<option value="America/Blanc-Sablon" name="Blanc-Sablon" selected="false" />
+				<option value="America/Boa_Vista" name="Boa Vista" selected="false" />
+				<option value="America/Bogota" name="Bogota" selected="false" />
+				<option value="America/Boise" name="Boise" selected="false" />
+				<option value="America/Buenos_Aires" name="Buenos Aires" selected="false" />
+				<option value="America/Cambridge_Bay" name="Cambridge Bay" selected="false" />
+				<option value="America/Campo_Grande" name="Campo Grande" selected="false" />
+				<option value="America/Cancun" name="Cancun" selected="false" />
+				<option value="America/Caracas" name="Caracas" selected="false" />
+				<option value="America/Catamarca" name="Catamarca" selected="false" />
+				<option value="America/Cayenne" name="Cayenne" selected="false" />
+				<option value="America/Cayman" name="Cayman" selected="false" />
+				<option value="America/Chicago" name="Chicago" selected="false" />
+				<option value="America/Chihuahua" name="Chihuahua" selected="false" />
+				<option value="America/Coral_Harbour" name="Coral Harbour" selected="false" />
+				<option value="America/Cordoba" name="Cordoba" selected="false" />
+				<option value="America/Costa_Rica" name="Costa Rica" selected="false" />
+				<option value="America/Creston" name="Creston" selected="false" />
+				<option value="America/Cuiaba" name="Cuiaba" selected="false" />
+				<option value="America/Curacao" name="Curacao" selected="false" />
+				<option value="America/Danmarkshavn" name="Danmarkshavn" selected="false" />
+				<option value="America/Dawson" name="Dawson" selected="false" />
+				<option value="America/Dawson_Creek" name="Dawson Creek" selected="false" />
+				<option value="America/Denver" name="Denver" selected="false" />
+				<option value="America/Detroit" name="Detroit" selected="false" />
+				<option value="America/Dominica" name="Dominica" selected="false" />
+				<option value="America/Edmonton" name="Edmonton" selected="false" />
+				<option value="America/Eirunepe" name="Eirunepe" selected="false" />
+				<option value="America/El_Salvador" name="El Salvador" selected="false" />
+				<option value="America/Ensenada" name="Ensenada" selected="false" />
+				<option value="America/Fort_Wayne" name="Fort Wayne" selected="false" />
+				<option value="America/Fortaleza" name="Fortaleza" selected="false" />
+				<option value="America/Glace_Bay" name="Glace Bay" selected="false" />
+				<option value="America/Godthab" name="Godthab" selected="false" />
+				<option value="America/Goose_Bay" name="Goose Bay" selected="false" />
+				<option value="America/Grand_Turk" name="Grand Turk" selected="false" />
+				<option value="America/Grenada" name="Grenada" selected="false" />
+				<option value="America/Guadeloupe" name="Guadeloupe" selected="false" />
+				<option value="America/Guatemala" name="Guatemala" selected="false" />
+				<option value="America/Guayaquil" name="Guayaquil" selected="false" />
+				<option value="America/Guyana" name="Guyana" selected="false" />
+				<option value="America/Halifax" name="Halifax" selected="false" />
+				<option value="America/Havana" name="Havana" selected="false" />
+				<option value="America/Hermosillo" name="Hermosillo" selected="false" />
+				<option value="America/Indiana/Indianapolis" name="Indiana/Indianapolis" selected="false" />
+				<option value="America/Indiana/Knox" name="Indiana/Knox" selected="false" />
+				<option value="America/Indiana/Marengo" name="Indiana/Marengo" selected="false" />
+				<option value="America/Indiana/Petersburg" name="Indiana/Petersburg" selected="false" />
+				<option value="America/Indiana/Tell_City" name="Indiana/Tell City" selected="false" />
+				<option value="America/Indiana/Vevay" name="Indiana/Vevay" selected="false" />
+				<option value="America/Indiana/Vincennes" name="Indiana/Vincennes" selected="false" />
+				<option value="America/Indiana/Winamac" name="Indiana/Winamac" selected="false" />
+				<option value="America/Indianapolis" name="Indianapolis" selected="false" />
+				<option value="America/Inuvik" name="Inuvik" selected="false" />
+				<option value="America/Iqaluit" name="Iqaluit" selected="false" />
+				<option value="America/Jamaica" name="Jamaica" selected="false" />
+				<option value="America/Jujuy" name="Jujuy" selected="false" />
+				<option value="America/Juneau" name="Juneau" selected="false" />
+				<option value="America/Kentucky/Louisville" name="Kentucky/Louisville" selected="false" />
+				<option value="America/Kentucky/Monticello" name="Kentucky/Monticello" selected="false" />
+				<option value="America/Knox_IN" name="Knox IN" selected="false" />
+				<option value="America/Kralendijk" name="Kralendijk" selected="false" />
+				<option value="America/La_Paz" name="La Paz" selected="false" />
+				<option value="America/Lima" name="Lima" selected="false" />
+				<option value="America/Los_Angeles" name="Los Angeles" selected="false" />
+				<option value="America/Louisville" name="Louisville" selected="false" />
+				<option value="America/Lower_Princes" name="Lower Princes" selected="false" />
+				<option value="America/Maceio" name="Maceio" selected="false" />
+				<option value="America/Managua" name="Managua" selected="false" />
+				<option value="America/Manaus" name="Manaus" selected="false" />
+				<option value="America/Marigot" name="Marigot" selected="false" />
+				<option value="America/Martinique" name="Martinique" selected="false" />
+				<option value="America/Matamoros" name="Matamoros" selected="false" />
+				<option value="America/Mazatlan" name="Mazatlan" selected="false" />
+				<option value="America/Mendoza" name="Mendoza" selected="false" />
+				<option value="America/Menominee" name="Menominee" selected="false" />
+				<option value="America/Merida" name="Merida" selected="false" />
+				<option value="America/Metlakatla" name="Metlakatla" selected="false" />
+				<option value="America/Mexico_City" name="Mexico City" selected="false" />
+				<option value="America/Miquelon" name="Miquelon" selected="false" />
+				<option value="America/Moncton" name="Moncton" selected="false" />
+				<option value="America/Monterrey" name="Monterrey" selected="false" />
+				<option value="America/Montevideo" name="Montevideo" selected="false" />
+				<option value="America/Montreal" name="Montreal" selected="false" />
+				<option value="America/Montserrat" name="Montserrat" selected="false" />
+				<option value="America/Nassau" name="Nassau" selected="false" />
+				<option value="America/New_York" name="New York" selected="false" />
+				<option value="America/Nipigon" name="Nipigon" selected="false" />
+				<option value="America/Nome" name="Nome" selected="false" />
+				<option value="America/Noronha" name="Noronha" selected="false" />
+				<option value="America/North_Dakota/Beulah" name="North Dakota/Beulah" selected="false" />
+				<option value="America/North_Dakota/Center" name="North Dakota/Center" selected="false" />
+				<option value="America/North_Dakota/New_Salem" name="North Dakota/New Salem" selected="false" />
+				<option value="America/Ojinaga" name="Ojinaga" selected="false" />
+				<option value="America/Panama" name="Panama" selected="false" />
+				<option value="America/Pangnirtung" name="Pangnirtung" selected="false" />
+				<option value="America/Paramaribo" name="Paramaribo" selected="false" />
+				<option value="America/Phoenix" name="Phoenix" selected="false" />
+				<option value="America/Port_of_Spain" name="Port of Spain" selected="false" />
+				<option value="America/Port-au-Prince" name="Port-au-Prince" selected="false" />
+				<option value="America/Porto_Acre" name="Porto Acre" selected="false" />
+				<option value="America/Porto_Velho" name="Porto Velho" selected="false" />
+				<option value="America/Puerto_Rico" name="Puerto Rico" selected="false" />
+				<option value="America/Rainy_River" name="Rainy River" selected="false" />
+				<option value="America/Rankin_Inlet" name="Rankin Inlet" selected="false" />
+				<option value="America/Recife" name="Recife" selected="false" />
+				<option value="America/Regina" name="Regina" selected="false" />
+				<option value="America/Resolute" name="Resolute" selected="false" />
+				<option value="America/Rio_Branco" name="Rio Branco" selected="false" />
+				<option value="America/Rosario" name="Rosario" selected="false" />
+				<option value="America/Santa_Isabel" name="Santa Isabel" selected="false" />
+				<option value="America/Santarem" name="Santarem" selected="false" />
+				<option value="America/Santiago" name="Santiago" selected="false" />
+				<option value="America/Santo_Domingo" name="Santo Domingo" selected="false" />
+				<option value="America/Sao_Paulo" name="Sao Paulo" selected="false" />
+				<option value="America/Scoresbysund" name="Scoresbysund" selected="false" />
+				<option value="America/Shiprock" name="Shiprock" selected="false" />
+				<option value="America/Sitka" name="Sitka" selected="false" />
+				<option value="America/St_Barthelemy" name="St Barthelemy" selected="false" />
+				<option value="America/St_Johns" name="St Johns" selected="false" />
+				<option value="America/St_Kitts" name="St Kitts" selected="false" />
+				<option value="America/St_Lucia" name="St Lucia" selected="false" />
+				<option value="America/St_Thomas" name="St Thomas" selected="false" />
+				<option value="America/St_Vincent" name="St Vincent" selected="false" />
+				<option value="America/Swift_Current" name="Swift Current" selected="false" />
+				<option value="America/Tegucigalpa" name="Tegucigalpa" selected="false" />
+				<option value="America/Thule" name="Thule" selected="false" />
+				<option value="America/Thunder_Bay" name="Thunder Bay" selected="false" />
+				<option value="America/Tijuana" name="Tijuana" selected="false" />
+				<option value="America/Toronto" name="Toronto" selected="false" />
+				<option value="America/Tortola" name="Tortola" selected="false" />
+				<option value="America/Vancouver" name="Vancouver" selected="false" />
+				<option value="America/Virgin" name="Virgin" selected="false" />
+				<option value="America/Whitehorse" name="Whitehorse" selected="false" />
+				<option value="America/Winnipeg" name="Winnipeg" selected="false" />
+				<option value="America/Yakutat" name="Yakutat" selected="false" />
+				<option value="America/Yellowknife" name="Yellowknife" selected="false" />
+			</optionGroup>
+			<optionGroup id="Antarctica">
+				<label id="Antarctica">Antarctica</label>
+				<option value="Antarctica/Casey" name="Casey" selected="false" />
+				<option value="Antarctica/Davis" name="Davis" selected="false" />
+				<option value="Antarctica/DumontDUrville" name="DumontDUrville" selected="false" />
+				<option value="Antarctica/Macquarie" name="Macquarie" selected="false" />
+				<option value="Antarctica/Mawson" name="Mawson" selected="false" />
+				<option value="Antarctica/McMurdo" name="McMurdo" selected="false" />
+				<option value="Antarctica/Palmer" name="Palmer" selected="false" />
+				<option value="Antarctica/Rothera" name="Rothera" selected="false" />
+				<option value="Antarctica/South_Pole" name="South Pole" selected="false" />
+				<option value="Antarctica/Syowa" name="Syowa" selected="false" />
+				<option value="Antarctica/Troll" name="Troll" selected="false" />
+				<option value="Antarctica/Vostok" name="Vostok" selected="false" />
+			</optionGroup>
+			<optionGroup id="Asia">
+				<label id="Asia">Asia</label>
+				<option value="Asia/Aden" name="Aden" selected="false" />
+				<option value="Asia/Almaty" name="Almaty" selected="false" />
+				<option value="Asia/Amman" name="Amman" selected="false" />
+				<option value="Asia/Anadyr" name="Anadyr" selected="false" />
+				<option value="Asia/Aqtau" name="Aqtau" selected="false" />
+				<option value="Asia/Aqtobe" name="Aqtobe" selected="false" />
+				<option value="Asia/Ashgabat" name="Ashgabat" selected="false" />
+				<option value="Asia/Ashkhabad" name="Ashkhabad" selected="false" />
+				<option value="Asia/Baghdad" name="Baghdad" selected="false" />
+				<option value="Asia/Bahrain" name="Bahrain" selected="false" />
+				<option value="Asia/Baku" name="Baku" selected="false" />
+				<option value="Asia/Bangkok" name="Bangkok" selected="false" />
+				<option value="Asia/Beirut" name="Beirut" selected="false" />
+				<option value="Asia/Bishkek" name="Bishkek" selected="false" />
+				<option value="Asia/Brunei" name="Brunei" selected="false" />
+				<option value="Asia/Calcutta" name="Calcutta" selected="false" />
+				<option value="Asia/Chita" name="Chita" selected="false" />
+				<option value="Asia/Choibalsan" name="Choibalsan" selected="false" />
+				<option value="Asia/Chongqing" name="Chongqing" selected="false" />
+				<option value="Asia/Chungking" name="Chungking" selected="false" />
+				<option value="Asia/Colombo" name="Colombo" selected="false" />
+				<option value="Asia/Dacca" name="Dacca" selected="false" />
+				<option value="Asia/Damascus" name="Damascus" selected="false" />
+				<option value="Asia/Dhaka" name="Dhaka" selected="false" />
+				<option value="Asia/Dili" name="Dili" selected="false" />
+				<option value="Asia/Dubai" name="Dubai" selected="false" />
+				<option value="Asia/Dushanbe" name="Dushanbe" selected="false" />
+				<option value="Asia/Gaza" name="Gaza" selected="false" />
+				<option value="Asia/Harbin" name="Harbin" selected="false" />
+				<option value="Asia/Hebron" name="Hebron" selected="false" />
+				<option value="Asia/Ho_Chi_Minh" name="Ho Chi Minh" selected="false" />
+				<option value="Asia/Hong_Kong" name="Hong Kong" selected="false" />
+				<option value="Asia/Hovd" name="Hovd" selected="false" />
+				<option value="Asia/Irkutsk" name="Irkutsk" selected="false" />
+				<option value="Asia/Istanbul" name="Istanbul" selected="false" />
+				<option value="Asia/Jakarta" name="Jakarta" selected="false" />
+				<option value="Asia/Jayapura" name="Jayapura" selected="false" />
+				<option value="Asia/Jerusalem" name="Jerusalem" selected="false" />
+				<option value="Asia/Kabul" name="Kabul" selected="false" />
+				<option value="Asia/Kamchatka" name="Kamchatka" selected="false" />
+				<option value="Asia/Karachi" name="Karachi" selected="false" />
+				<option value="Asia/Kashgar" name="Kashgar" selected="false" />
+				<option value="Asia/Kathmandu" name="Kathmandu" selected="false" />
+				<option value="Asia/Katmandu" name="Katmandu" selected="false" />
+				<option value="Asia/Khandyga" name="Khandyga" selected="false" />
+				<option value="Asia/Kolkata" name="Kolkata" selected="false" />
+				<option value="Asia/Krasnoyarsk" name="Krasnoyarsk" selected="false" />
+				<option value="Asia/Kuala_Lumpur" name="Kuala Lumpur" selected="false" />
+				<option value="Asia/Kuching" name="Kuching" selected="false" />
+				<option value="Asia/Kuwait" name="Kuwait" selected="false" />
+				<option value="Asia/Macao" name="Macao" selected="false" />
+				<option value="Asia/Macau" name="Macau" selected="false" />
+				<option value="Asia/Magadan" name="Magadan" selected="false" />
+				<option value="Asia/Makassar" name="Makassar" selected="false" />
+				<option value="Asia/Manila" name="Manila" selected="false" />
+				<option value="Asia/Muscat" name="Muscat" selected="false" />
+				<option value="Asia/Nicosia" name="Nicosia" selected="false" />
+				<option value="Asia/Novokuznetsk" name="Novokuznetsk" selected="false" />
+				<option value="Asia/Novosibirsk" name="Novosibirsk" selected="false" />
+				<option value="Asia/Omsk" name="Omsk" selected="false" />
+				<option value="Asia/Oral" name="Oral" selected="false" />
+				<option value="Asia/Phnom_Penh" name="Phnom Penh" selected="false" />
+				<option value="Asia/Pontianak" name="Pontianak" selected="false" />
+				<option value="Asia/Pyongyang" name="Pyongyang" selected="false" />
+				<option value="Asia/Qatar" name="Qatar" selected="false" />
+				<option value="Asia/Qyzylorda" name="Qyzylorda" selected="false" />
+				<option value="Asia/Rangoon" name="Rangoon" selected="false" />
+				<option value="Asia/Riyadh" name="Riyadh" selected="false" />
+				<option value="Asia/Saigon" name="Saigon" selected="false" />
+				<option value="Asia/Sakhalin" name="Sakhalin" selected="false" />
+				<option value="Asia/Samarkand" name="Samarkand" selected="false" />
+				<option value="Asia/Seoul" name="Seoul" selected="false" />
+				<option value="Asia/Shanghai" name="Shanghai" selected="false" />
+				<option value="Asia/Singapore" name="Singapore" selected="false" />
+				<option value="Asia/Srednekolymsk" name="Srednekolymsk" selected="false" />
+				<option value="Asia/Taipei" name="Taipei" selected="false" />
+				<option value="Asia/Tashkent" name="Tashkent" selected="false" />
+				<option value="Asia/Tbilisi" name="Tbilisi" selected="false" />
+				<option value="Asia/Tehran" name="Tehran" selected="false" />
+				<option value="Asia/Tel_Aviv" name="Tel Aviv" selected="false" />
+				<option value="Asia/Thimbu" name="Thimbu" selected="false" />
+				<option value="Asia/Thimphu" name="Thimphu" selected="false" />
+				<option value="Asia/Tokyo" name="Tokyo" selected="false" />
+				<option value="Asia/Ujung_Pandang" name="Ujung Pandang" selected="false" />
+				<option value="Asia/Ulaanbaatar" name="Ulaanbaatar" selected="false" />
+				<option value="Asia/Ulan_Bator" name="Ulan Bator" selected="false" />
+				<option value="Asia/Urumqi" name="Urumqi" selected="false" />
+				<option value="Asia/Ust-Nera" name="Ust-Nera" selected="false" />
+				<option value="Asia/Vientiane" name="Vientiane" selected="false" />
+				<option value="Asia/Vladivostok" name="Vladivostok" selected="false" />
+				<option value="Asia/Yakutsk" name="Yakutsk" selected="false" />
+				<option value="Asia/Yekaterinburg" name="Yekaterinburg" selected="false" />
+				<option value="Asia/Yerevan" name="Yerevan" selected="false" />
+			</optionGroup>
+			<optionGroup id="Atlantic">
+				<label id="Atlantic">Atlantic</label>
+				<option value="Atlantic/Azores" name="Azores" selected="false" />
+				<option value="Atlantic/Bermuda" name="Bermuda" selected="false" />
+				<option value="Atlantic/Canary" name="Canary" selected="false" />
+				<option value="Atlantic/Cape_Verde" name="Cape Verde" selected="false" />
+				<option value="Atlantic/Faeroe" name="Faeroe" selected="false" />
+				<option value="Atlantic/Faroe" name="Faroe" selected="false" />
+				<option value="Atlantic/Jan_Mayen" name="Jan Mayen" selected="false" />
+				<option value="Atlantic/Madeira" name="Madeira" selected="false" />
+				<option value="Atlantic/Reykjavik" name="Reykjavik" selected="false" />
+				<option value="Atlantic/South_Georgia" name="South Georgia" selected="false" />
+				<option value="Atlantic/St_Helena" name="St Helena" selected="false" />
+				<option value="Atlantic/Stanley" name="Stanley" selected="false" />
+			</optionGroup>
+			<optionGroup id="Australia">
+				<label id="Australia">Australia</label>
+				<option value="Australia/ACT" name="ACT" selected="false" />
+				<option value="Australia/Adelaide" name="Adelaide" selected="false" />
+				<option value="Australia/Brisbane" name="Brisbane" selected="false" />
+				<option value="Australia/Broken_Hill" name="Broken Hill" selected="false" />
+				<option value="Australia/Canberra" name="Canberra" selected="false" />
+				<option value="Australia/Currie" name="Currie" selected="false" />
+				<option value="Australia/Darwin" name="Darwin" selected="false" />
+				<option value="Australia/Eucla" name="Eucla" selected="false" />
+				<option value="Australia/Hobart" name="Hobart" selected="false" />
+				<option value="Australia/LHI" name="LHI" selected="false" />
+				<option value="Australia/Lindeman" name="Lindeman" selected="false" />
+				<option value="Australia/Lord_Howe" name="Lord Howe" selected="false" />
+				<option value="Australia/Melbourne" name="Melbourne" selected="false" />
+				<option value="Australia/NSW" name="NSW" selected="false" />
+				<option value="Australia/North" name="North" selected="false" />
+				<option value="Australia/Perth" name="Perth" selected="false" />
+				<option value="Australia/Queensland" name="Queensland" selected="false" />
+				<option value="Australia/South" name="South" selected="false" />
+				<option value="Australia/Sydney" name="Sydney" selected="false" />
+				<option value="Australia/Tasmania" name="Tasmania" selected="false" />
+				<option value="Australia/Victoria" name="Victoria" selected="false" />
+				<option value="Australia/West" name="West" selected="false" />
+				<option value="Australia/Yancowinna" name="Yancowinna" selected="false" />
+			</optionGroup>
+			<optionGroup id="Europe">
+				<label id="Europe">Europe</label>
+				<option value="Europe/Amsterdam" name="Amsterdam" selected="false" />
+				<option value="Europe/Andorra" name="Andorra" selected="false" />
+				<option value="Europe/Athens" name="Athens" selected="false" />
+				<option value="Europe/Belfast" name="Belfast" selected="false" />
+				<option value="Europe/Belgrade" name="Belgrade" selected="false" />
+				<option value="Europe/Berlin" name="Berlin" selected="true" />
+				<option value="Europe/Bratislava" name="Bratislava" selected="false" />
+				<option value="Europe/Brussels" name="Brussels" selected="false" />
+				<option value="Europe/Bucharest" name="Bucharest" selected="false" />
+				<option value="Europe/Budapest" name="Budapest" selected="false" />
+				<option value="Europe/Busingen" name="Busingen" selected="false" />
+				<option value="Europe/Chisinau" name="Chisinau" selected="false" />
+				<option value="Europe/Copenhagen" name="Copenhagen" selected="false" />
+				<option value="Europe/Dublin" name="Dublin" selected="false" />
+				<option value="Europe/Gibraltar" name="Gibraltar" selected="false" />
+				<option value="Europe/Guernsey" name="Guernsey" selected="false" />
+				<option value="Europe/Helsinki" name="Helsinki" selected="false" />
+				<option value="Europe/Isle_of_Man" name="Isle of Man" selected="false" />
+				<option value="Europe/Istanbul" name="Istanbul" selected="false" />
+				<option value="Europe/Jersey" name="Jersey" selected="false" />
+				<option value="Europe/Kaliningrad" name="Kaliningrad" selected="false" />
+				<option value="Europe/Kiev" name="Kiev" selected="false" />
+				<option value="Europe/Lisbon" name="Lisbon" selected="false" />
+				<option value="Europe/Ljubljana" name="Ljubljana" selected="false" />
+				<option value="Europe/London" name="London" selected="false" />
+				<option value="Europe/Luxembourg" name="Luxembourg" selected="false" />
+				<option value="Europe/Madrid" name="Madrid" selected="false" />
+				<option value="Europe/Malta" name="Malta" selected="false" />
+				<option value="Europe/Mariehamn" name="Mariehamn" selected="false" />
+				<option value="Europe/Minsk" name="Minsk" selected="false" />
+				<option value="Europe/Monaco" name="Monaco" selected="false" />
+				<option value="Europe/Moscow" name="Moscow" selected="false" />
+				<option value="Europe/Nicosia" name="Nicosia" selected="false" />
+				<option value="Europe/Oslo" name="Oslo" selected="false" />
+				<option value="Europe/Paris" name="Paris" selected="false" />
+				<option value="Europe/Podgorica" name="Podgorica" selected="false" />
+				<option value="Europe/Prague" name="Prague" selected="false" />
+				<option value="Europe/Riga" name="Riga" selected="false" />
+				<option value="Europe/Rome" name="Rome" selected="false" />
+				<option value="Europe/Samara" name="Samara" selected="false" />
+				<option value="Europe/San_Marino" name="San Marino" selected="false" />
+				<option value="Europe/Sarajevo" name="Sarajevo" selected="false" />
+				<option value="Europe/Simferopol" name="Simferopol" selected="false" />
+				<option value="Europe/Skopje" name="Skopje" selected="false" />
+				<option value="Europe/Sofia" name="Sofia" selected="false" />
+				<option value="Europe/Stockholm" name="Stockholm" selected="false" />
+				<option value="Europe/Tallinn" name="Tallinn" selected="false" />
+				<option value="Europe/Tirane" name="Tirane" selected="false" />
+				<option value="Europe/Tiraspol" name="Tiraspol" selected="false" />
+				<option value="Europe/Uzhgorod" name="Uzhgorod" selected="false" />
+				<option value="Europe/Vaduz" name="Vaduz" selected="false" />
+				<option value="Europe/Vatican" name="Vatican" selected="false" />
+				<option value="Europe/Vienna" name="Vienna" selected="false" />
+				<option value="Europe/Vilnius" name="Vilnius" selected="false" />
+				<option value="Europe/Volgograd" name="Volgograd" selected="false" />
+				<option value="Europe/Warsaw" name="Warsaw" selected="false" />
+				<option value="Europe/Zagreb" name="Zagreb" selected="false" />
+				<option value="Europe/Zaporozhye" name="Zaporozhye" selected="false" />
+				<option value="Europe/Zurich" name="Zurich" selected="false" />
+			</optionGroup>
+			<optionGroup id="Indian">
+				<label id="Indian">Indian</label>
+				<option value="Indian/Antananarivo" name="Antananarivo" selected="false" />
+				<option value="Indian/Chagos" name="Chagos" selected="false" />
+				<option value="Indian/Christmas" name="Christmas" selected="false" />
+				<option value="Indian/Cocos" name="Cocos" selected="false" />
+				<option value="Indian/Comoro" name="Comoro" selected="false" />
+				<option value="Indian/Kerguelen" name="Kerguelen" selected="false" />
+				<option value="Indian/Mahe" name="Mahe" selected="false" />
+				<option value="Indian/Maldives" name="Maldives" selected="false" />
+				<option value="Indian/Mauritius" name="Mauritius" selected="false" />
+				<option value="Indian/Mayotte" name="Mayotte" selected="false" />
+				<option value="Indian/Reunion" name="Reunion" selected="false" />
+			</optionGroup>
+			<optionGroup id="Pacific">
+				<label id="Pacific">Pacific</label>
+				<option value="Pacific/Apia" name="Apia" selected="false" />
+				<option value="Pacific/Auckland" name="Auckland" selected="false" />
+				<option value="Pacific/Bougainville" name="Bougainville" selected="false" />
+				<option value="Pacific/Chatham" name="Chatham" selected="false" />
+				<option value="Pacific/Chuuk" name="Chuuk" selected="false" />
+				<option value="Pacific/Easter" name="Easter" selected="false" />
+				<option value="Pacific/Efate" name="Efate" selected="false" />
+				<option value="Pacific/Enderbury" name="Enderbury" selected="false" />
+				<option value="Pacific/Fakaofo" name="Fakaofo" selected="false" />
+				<option value="Pacific/Fiji" name="Fiji" selected="false" />
+				<option value="Pacific/Funafuti" name="Funafuti" selected="false" />
+				<option value="Pacific/Galapagos" name="Galapagos" selected="false" />
+				<option value="Pacific/Gambier" name="Gambier" selected="false" />
+				<option value="Pacific/Guadalcanal" name="Guadalcanal" selected="false" />
+				<option value="Pacific/Guam" name="Guam" selected="false" />
+				<option value="Pacific/Honolulu" name="Honolulu" selected="false" />
+				<option value="Pacific/Johnston" name="Johnston" selected="false" />
+				<option value="Pacific/Kiritimati" name="Kiritimati" selected="false" />
+				<option value="Pacific/Kosrae" name="Kosrae" selected="false" />
+				<option value="Pacific/Kwajalein" name="Kwajalein" selected="false" />
+				<option value="Pacific/Majuro" name="Majuro" selected="false" />
+				<option value="Pacific/Marquesas" name="Marquesas" selected="false" />
+				<option value="Pacific/Midway" name="Midway" selected="false" />
+				<option value="Pacific/Nauru" name="Nauru" selected="false" />
+				<option value="Pacific/Niue" name="Niue" selected="false" />
+				<option value="Pacific/Norfolk" name="Norfolk" selected="false" />
+				<option value="Pacific/Noumea" name="Noumea" selected="false" />
+				<option value="Pacific/Pago_Pago" name="Pago Pago" selected="false" />
+				<option value="Pacific/Palau" name="Palau" selected="false" />
+				<option value="Pacific/Pitcairn" name="Pitcairn" selected="false" />
+				<option value="Pacific/Pohnpei" name="Pohnpei" selected="false" />
+				<option value="Pacific/Ponape" name="Ponape" selected="false" />
+				<option value="Pacific/Port_Moresby" name="Port Moresby" selected="false" />
+				<option value="Pacific/Rarotonga" name="Rarotonga" selected="false" />
+				<option value="Pacific/Saipan" name="Saipan" selected="false" />
+				<option value="Pacific/Samoa" name="Samoa" selected="false" />
+				<option value="Pacific/Tahiti" name="Tahiti" selected="false" />
+				<option value="Pacific/Tarawa" name="Tarawa" selected="false" />
+				<option value="Pacific/Tongatapu" name="Tongatapu" selected="false" />
+				<option value="Pacific/Truk" name="Truk" selected="false" />
+				<option value="Pacific/Wake" name="Wake" selected="false" />
+				<option value="Pacific/Wallis" name="Wallis" selected="false" />
+				<option value="Pacific/Yap" name="Yap" selected="false" />
+			</optionGroup>
+		</selection>
+		<result>
+			<field name="name" type="text">
+				<value>subject-3</value>
+			</field>
+			<field name="realname" type="text">
+				<value>John Doe</value>
+			</field>
+			<field name="language" type="list:select">
+				<value>de</value>
+			</field>
+			<field name="timeZone" type="list:select">
+				<value>Europe/Rome</value>
+			</field>
+			<field name="lastLogin" type="date">
+				<value>2020-02-03 14:14:19</value>
+			</field>
+			<field name="email" type="text">
+				<value>john@doe.org</value>
+			</field>
+		</result>
+	</data>
+	<bean id="editProfile" />
+</action>

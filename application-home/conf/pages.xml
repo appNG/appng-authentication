@@ -86,6 +86,14 @@
 							<condition expression="${action eq 'forgotPassword'}" />
 						</action>
 					</element>
+					<element>
+						<action id="editProfile" eventId="profileEvent">
+							<params>
+								<param name="form_action">${form_action}</param>
+							</params>
+							<condition expression="${action eq 'editProfile'}" />
+						</action>
+					</element>
 				</section>
 			</structure>
 		</page>

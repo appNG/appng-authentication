@@ -46,9 +46,10 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 	protected static final String ACTION_FORGOT_PASSWORD = "forgotPassword";
 	protected static final String ACTION_RESET_PASSWORD = "resetPassword";
 	protected static final String ACTION_LOGIN = "login";
+	protected CoreService coreService;
 
-	public CoreService getCoreService(Application application) {
-		return application.getBean(CoreService.class);
+	protected AbstractLogon(CoreService coreService) {
+		this.coreService = coreService;
 	}
 
 	protected void processLogonResult(Site site, Application application, Environment env, Options options,

@@ -32,17 +32,17 @@ public class LoginData {
 		return username;
 	}
 
-	@NotNull(groups = PasswordChange.class, message = "{password.oldRequired}")
+	@NotNull(groups = ChangePassword.class, message = "{password.oldRequired}")
 	public String getOldpassword() {
 		return oldpassword;
 	}
 
-	@NotNull(groups = PasswordChange.class, message = "{password.newRequired}")
+	@NotNull(groups = ChangePassword.class, message = "{password.newRequired}")
 	public String getPassword() {
 		return password;
 	}
 
-	@NotNull(groups = PasswordChange.class, message = "{password.confirmRequired}")
+	@NotNull(groups = ChangePassword.class, message = "{password.confirmRequired}")
 	public String getPasswordConfirmation() {
 		return passwordConfirmation;
 	}
@@ -51,4 +51,6 @@ public class LoginData {
 		return digest;
 	}
 
+	interface ChangePassword {
+	}
 }

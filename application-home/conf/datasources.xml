@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<datasources xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
 
 	<datasource id="loginData">
@@ -22,7 +23,7 @@
 			<title>change.password</title>
 			<meta-data bindClass="org.appng.application.authentication.webform.LoginData">
 				<validation>
-					<group class="org.appng.application.authentication.webform.PasswordChange" />
+					<group class="org.appng.application.authentication.webform.LoginData$ChangePassword" />
 				</validation>
 				<field name="username" type="text" readonly="true">
 					<label>username</label>
@@ -40,6 +41,33 @@
 		</config>
 		<bean id="passwordChange">
 		</bean>
+	</datasource>
+
+	<datasource id="userProfile">
+		<config>
+			<title>profile.edit</title>
+			<meta-data bindClass="org.appng.core.domain.SubjectImpl">
+				<field name="name" type="text" readonly="true">
+					<label id="name" />
+				</field>
+				<field name="realname" type="text">
+					<label id="realName" />
+				</field>
+				<field name="language" type="list:select">
+					<label id="language" />
+				</field>
+				<field name="timeZone" type="list:select">
+					<label id="timeZone" />
+				</field>
+				<field name="lastLogin" type="date" readonly="true">
+					<label id="lastLogin" />
+				</field>
+				<field name="email" type="text">
+					<label id="email" />
+				</field>
+			</meta-data>
+		</config>
+		<bean id="editProfile" />
 	</datasource>
 
 </datasources>

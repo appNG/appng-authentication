@@ -32,6 +32,7 @@ import org.appng.core.security.DigestValidator;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,8 +45,13 @@ import lombok.extern.slf4j.Slf4j;
  * @see DigestValidator
  * @see CoreService#login(Environment, String, int)
  */
+@Service
 @Slf4j
 public class DigestLogin extends AbstractLogon {
+	
+	public DigestLogin(CoreService coreService) {
+		super(coreService);
+	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData loginData, FieldProcessor fp) {
@@ -61,11 +67,11 @@ public class DigestLogin extends AbstractLogon {
 				String currentUser = environment.getSubject().getAuthName();
 				if (StringUtils.isNotBlank(username) && !currentUser.equals(username)) {
 					LOGGER.debug("a different user ({}) is logged in, performing log-out first.", currentUser);
-					getCoreService(application).logoutSubject(environment);
+					coreService.logoutSubject(environment);
 				}
 			}
 			if (!environment.isSubjectAuthenticated()) {
-				success = getCoreService(application).login(environment, digest, digestMaxValidity);
+				success = coreService.login(environment, digest, digestMaxValidity);
 				LOGGER.debug("digest login for user {} " + (success ? "succeeded" : "failed") + ".", username);
 			} else {
 				LOGGER.debug("user {} is already logged in", environment.getSubject().getAuthName());
