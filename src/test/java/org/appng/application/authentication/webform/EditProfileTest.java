@@ -57,6 +57,7 @@ public class EditProfileTest extends BaseLoginTest {
 		differenceListener.ignoreDifference("/action/data/selection/optionGroup");
 		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option");
 		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option/@name");
+		differenceListener.ignoreDifference("/action/data/selection/optionGroup/option/@value");
 		validate(editProfile.getAction(), differenceListener);
 	}
 
