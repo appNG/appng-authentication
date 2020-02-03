@@ -30,13 +30,20 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.MessageConstants;
 import org.appng.core.domain.SubjectImpl;
+import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.PasswordHandler;
 import org.appng.core.service.CoreService;
+import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
+import org.appng.xml.platform.Pattern;
+import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 
@@ -82,6 +89,8 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 								passwordNew.toCharArray(), subject);
 						if (updatePassword) {
 							message = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE);
+							subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
+							environment.getSubject().setPasswordChangePolicy(PasswordChangePolicy.MAY);
 							service.updateSubject(subject);
 							fp.addOkMessage(message);
 							String lastUrl = environment.getAttribute(SESSION, PREVIOUS_PATH);
@@ -112,8 +121,37 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 		if (subject == null) {
 			String baseUrl = env.getAttribute(Scope.REQUEST, BASE_URL);
 			site.sendRedirect(env, baseUrl, HttpStatus.FOUND.value());
+		} else if (PasswordChangePolicy.MUST_NOT.equals(subject.getPasswordChangePolicy())) {
+			String errorMessage = application.getMessage(env.getLocale(), MessageConstants.PASSWORD_CHANGE_NOT_ALLOWED);
+			LoginData loginData = new LoginData();
+			loginData.setUsername(subject.getName());
+			fp.getFields().forEach(f -> f.setReadonly(Boolean.TRUE.toString()));
+			fp.addErrorMessage(errorMessage);
+			dataContainer.setItem(loginData);
 		} else {
 			LoginData loginData = new LoginData();
+			
+			if(PasswordChangePolicy.MUST.equals(subject.getPasswordChangePolicy())) {
+				fp.addInvalidMessage(request.getMessage(MessageConstants.PASSWORD_MUST_CHANGE));
+			}
+			
+			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
+			if (passwordPolicy instanceof DefaultPasswordPolicy) {
+				FieldDef field = fp.getField("password");
+				Validation validation = new Validation();
+				field.setValidation(validation);
+				
+				Pattern pattern = new Pattern();
+				java.util.regex.Pattern policyPattern = DefaultPasswordPolicy.class.cast(passwordPolicy).getPattern();
+				pattern.setRegexp(policyPattern.pattern());
+				Message mssg = new Message();
+				mssg.setClazz(MessageType.ERROR);
+				mssg.setRef(field.getBinding());
+				mssg.setContent(request.getMessage(passwordPolicy.getErrorMessageKey()));
+				pattern.setMessage(mssg);
+				validation.setPattern(pattern);
+			}
+			
 			loginData.setUsername(subject.getName());
 			dataContainer.setItem(loginData);
 		}
@@ -123,4 +161,5 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 	protected Logger log() {
 		return LOGGER;
 	}
+
 }

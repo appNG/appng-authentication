@@ -21,6 +21,9 @@
 		<config>
 			<title>change.password</title>
 			<meta-data bindClass="org.appng.application.authentication.webform.LoginData">
+				<validation>
+					<group class="org.appng.application.authentication.webform.PasswordChange" />
+				</validation>
 				<field name="username" type="text" readonly="true">
 					<label>username</label>
 				</field>
@@ -38,5 +41,5 @@
 		<bean id="passwordChange">
 		</bean>
 	</datasource>
-</datasources>
 
+</datasources>

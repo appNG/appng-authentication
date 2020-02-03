@@ -15,10 +15,10 @@
  */
 package org.appng.application.authentication.webform;
 
-import lombok.Getter;
+import javax.validation.constraints.NotNull;
+
 import lombok.Setter;
 
-@Getter
 @Setter
 public class LoginData {
 
@@ -27,5 +27,28 @@ public class LoginData {
 	private String password;
 	private String passwordConfirmation;
 	private String digest;
+
+	public String getUsername() {
+		return username;
+	}
+
+	@NotNull(groups = PasswordChange.class, message = "{password.oldRequired}")
+	public String getOldpassword() {
+		return oldpassword;
+	}
+
+	@NotNull(groups = PasswordChange.class, message = "{password.newRequired}")
+	public String getPassword() {
+		return password;
+	}
+
+	@NotNull(groups = PasswordChange.class, message = "{password.confirmRequired}")
+	public String getPasswordConfirmation() {
+		return passwordConfirmation;
+	}
+
+	public String getDigest() {
+		return digest;
+	}
 
 }

@@ -94,8 +94,15 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 				log().debug("no redirect required");
 			}
 		} else {
-			String message = application.getMessage(env.getLocale(), MessageConstants.AUTHENTICATION_ERROR);
-			fp.addErrorMessage(message);
+			String messageKey;
+			if (Boolean.TRUE.equals(env.removeAttribute(Scope.REQUEST, "subject.locked"))) {
+				messageKey = MessageConstants.USER_IS_LOCKED;
+			} else if (Boolean.TRUE.equals(env.removeAttribute(Scope.REQUEST, "subject.mustRecoverPassword"))) {
+				messageKey = MessageConstants.PASSWORD_RECOVERY_NEEDED;
+			} else {
+				messageKey = MessageConstants.AUTHENTICATION_ERROR;
+			}
+			fp.addErrorMessage(application.getMessage(env.getLocale(), messageKey));
 		}
 	}
 

@@ -64,11 +64,8 @@ public class PasswordReset extends AbstractLogon {
 		} else {
 			String email = subject.getEmail();
 			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
-			boolean reset = doReset(site, application, environment, request, fp, service, subject, passwordPolicy,
+			doReset(site, application, environment, request, fp, service, subject, passwordPolicy,
 					subject.getName(), email);
-			if (reset) {
-				service.updateSubject(subject);
-			}
 		}
 	}
 
@@ -134,7 +131,7 @@ public class PasswordReset extends AbstractLogon {
 					} else {
 						h = new BCryptPasswordHandler(subject);
 					}
-					hash = h.getPasswordResetDigest();
+					hash = h.calculatePasswordResetDigest();
 					subject.setDigest(hash);
 					result = true;
 				}
