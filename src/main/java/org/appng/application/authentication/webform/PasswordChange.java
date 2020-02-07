@@ -20,11 +20,11 @@ import static org.appng.api.Scope.SESSION;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.BusinessException;
 import org.appng.api.DataContainer;
 import org.appng.api.DataProvider;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
+import org.appng.api.MessageParam;
 import org.appng.api.Options;
 import org.appng.api.Request;
 import org.appng.api.Scope;
@@ -36,6 +36,7 @@ import org.appng.api.model.Subject;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.MessageConstants;
 import org.appng.core.domain.SubjectImpl;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.PasswordHandler;
 import org.appng.core.service.CoreService;
@@ -43,7 +44,11 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Pattern;
+import org.appng.xml.platform.Size;
 import org.appng.xml.platform.Validation;
+import org.passay.LengthRule;
+import org.passay.PasswordValidator;
+import org.passay.Rule;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -76,24 +81,18 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 		} else {
 			Locale locale = new Locale(subject.getLanguage());
 			loginData.setUsername(username);
-			errorMessage = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE_ERROR);
 			String password = loginData.getPassword();
-
-			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
-			if (!passwordPolicy.isValidPassword(password.toCharArray())) {
-				fp.addErrorMessage(request.getMessage(passwordPolicy.getErrorMessageKey()));
-				return;
-			}
 
 			String oldpassword = loginData.getOldpassword();
 			String passwordNew = loginData.getPasswordConfirmation();
 			if (!StringUtils.isEmpty(oldpassword)) {
-				PasswordHandler passwordHandler = service.getDefaultPasswordHandler(subject);
-				if (passwordHandler.isValidPassword(oldpassword)) {
-					try {
-						boolean updatePassword = service.updatePassword(password.toCharArray(),
-								passwordNew.toCharArray(), subject);
-						if (updatePassword) {
+				if (StringUtils.equals(password, passwordNew)) {
+					PasswordHandler passwordHandler = service.getDefaultPasswordHandler(subject);
+					if (passwordHandler.isValidPassword(oldpassword)) {
+						PasswordPolicy passwordPolicy = site.getPasswordPolicy();
+						PasswordPolicy.ValidationResult updatePasswordResult = service.updatePassword(passwordPolicy,
+								oldpassword.toCharArray(), password.toCharArray(), subject);
+						if (updatePasswordResult.isValid()) {
 							message = application.getMessage(locale, MessageConstants.PASSWORD_CHANGE);
 							subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
 							environment.getSubject().setPasswordChangePolicy(PasswordChangePolicy.MAY);
@@ -102,15 +101,18 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 							String lastUrl = environment.getAttribute(SESSION, PREVIOUS_PATH);
 							site.sendRedirect(environment, lastUrl, HttpStatus.FOUND.value());
 						} else {
-							errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_EMPTY);
-							fp.addErrorMessage(errorMessage);
+							for (MessageParam m : updatePasswordResult.getMessages()) {
+								String errMssg = request.getMessage(m.getMessageKey(), m.getMessageArgs());
+								fp.addErrorMessage(fp.getField("password"), errMssg);
+							}
 						}
-					} catch (BusinessException e) {
+
+					} else {
+						errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_ERROR);
 						fp.addErrorMessage(errorMessage);
-						LOGGER.error("error while changing password:", e);
 					}
 				} else {
-					errorMessage = application.getMessage(locale, MessageConstants.OLDPASSWORD_ERROR);
+					errorMessage = application.getMessage(locale, MessageConstants.PASSWORD_NOT_EQUAL);
 					fp.addErrorMessage(errorMessage);
 				}
 			} else {
@@ -142,26 +144,52 @@ public class PasswordChange extends AbstractLogon implements DataProvider {
 			}
 
 			PasswordPolicy passwordPolicy = site.getPasswordPolicy();
-			if (passwordPolicy instanceof DefaultPasswordPolicy) {
-				FieldDef field = fp.getField("password");
-				Validation validation = new Validation();
-				field.setValidation(validation);
-
-				Pattern pattern = new Pattern();
-				java.util.regex.Pattern policyPattern = DefaultPasswordPolicy.class.cast(passwordPolicy).getPattern();
-				pattern.setRegexp(policyPattern.pattern());
-				Message mssg = new Message();
-				mssg.setClazz(MessageType.ERROR);
-				mssg.setRef(field.getBinding());
-				mssg.setContent(request.getMessage(passwordPolicy.getErrorMessageKey()));
-				pattern.setMessage(mssg);
-				validation.setPattern(pattern);
-			}
+			addValidationForPolicy(request, fp, passwordPolicy);
 
 			loginData.setUsername(subject.getName());
 			dataContainer.setItem(loginData);
 		}
 		return dataContainer;
+	}
+
+	@SuppressWarnings("deprecation")
+	private void addValidationForPolicy(Request request, FieldProcessor fp, PasswordPolicy passwordPolicy) {
+		FieldDef field = fp.getField("password");
+		if (passwordPolicy instanceof DefaultPasswordPolicy) {
+			Validation validation = new Validation();
+			field.setValidation(validation);
+
+			Pattern pattern = new Pattern();
+			java.util.regex.Pattern policyPattern = DefaultPasswordPolicy.class.cast(passwordPolicy).getPattern();
+			pattern.setRegexp(policyPattern.pattern());
+			Message mssg = new Message();
+			mssg.setClazz(MessageType.ERROR);
+			mssg.setRef(field.getBinding());
+			pattern.setMessage(getMessage(field, request.getMessage(passwordPolicy.getErrorMessageKey())));
+			validation.setPattern(pattern);
+		} else if (passwordPolicy instanceof ConfigurablePasswordPolicy) {
+			PasswordValidator validator = ConfigurablePasswordPolicy.class.cast(passwordPolicy).getValidator();
+			for (Rule rule : validator.getRules()) {
+				if (rule instanceof LengthRule) {
+					Validation validation = new Validation();
+					field.setValidation(validation);
+					Size size = new Size();
+					size.setMin(LengthRule.class.cast(rule).getMinimumLength());
+					size.setMax(LengthRule.class.cast(rule).getMaximumLength());
+					String message = request.getMessage(MessageConstants.PASSWORD_LENGTH, size.getMin(), size.getMax());
+					size.setMessage(getMessage(field, message));
+					validation.setSize(size);
+				}
+			}
+		}
+	}
+
+	private Message getMessage(FieldDef field, String message) {
+		Message mssg = new Message();
+		mssg.setClazz(MessageType.ERROR);
+		mssg.setRef(field.getBinding());
+		mssg.setContent(message);
+		return mssg;
 	}
 
 	protected Logger log() {
