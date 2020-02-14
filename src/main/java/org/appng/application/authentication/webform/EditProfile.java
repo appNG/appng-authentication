@@ -15,6 +15,9 @@
  */
 package org.appng.application.authentication.webform;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -91,8 +94,10 @@ public class EditProfile implements ActionProvider<SubjectImpl>, DataProvider {
 		NamedTimeZone selected = null;
 		for (String tzId : TimeZone.getAvailableIDs()) {
 			if (tzId.matches("(Africa|America|Antarctica|Asia|Atlantic|Australia|Europe|Indian|Pacific).*")) {
-				NamedTimeZone ntz = new NamedTimeZone(tzId, tzId.substring(tzId.indexOf('/') + 1).replace('_', ' '),
-						null);
+				String name = tzId.substring(tzId.indexOf('/') + 1).replace('_', ' ');
+				ZoneOffset zoneOffset = LocalDateTime.now().atZone(ZoneId.of(tzId)).getOffset();
+				String offset = "Z".equals(zoneOffset.getId()) ? "" : zoneOffset.getId();
+				NamedTimeZone ntz = new NamedTimeZone(tzId, name + " (UTC" + offset + ")", null);
 				if (tzId.equals(timeZone)) {
 					selected = ntz;
 				}
