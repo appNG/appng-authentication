@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,17 +32,22 @@ import lombok.extern.slf4j.Slf4j;
  * Performs a user login with a username and a password.
  * 
  * @author Matthias Herlitzius
- * @see CoreService#login(Site, Environment, String, String)
+ * @see    CoreService#login(Site, Environment, String, String)
  */
 @Slf4j
+@Service
 public class LoginUser extends AbstractLogon {
+
+	public LoginUser(CoreService coreService) {
+		super(coreService);
+	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request container,
 			LoginData loginData, FieldProcessor fp) {
 		if (!environment.isSubjectAuthenticated()) {
 			String username = loginData.getUsername();
 			String password = loginData.getPassword();
-			boolean success = getCoreService(application).login(site, environment, username, password);
+			boolean success = coreService.login(site, environment, username, password);
 			processLogonResult(site, application, environment, options, fp, success);
 		}
 	}

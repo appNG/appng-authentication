@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,10 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 	protected static final String ACTION_FORGOT_PASSWORD = "forgotPassword";
 	protected static final String ACTION_RESET_PASSWORD = "resetPassword";
 	protected static final String ACTION_LOGIN = "login";
+	protected CoreService coreService;
 
-	public CoreService getCoreService(Application application) {
-		return application.getBean(CoreService.class);
+	protected AbstractLogon(CoreService coreService) {
+		this.coreService = coreService;
 	}
 
 	protected void processLogonResult(Site site, Application application, Environment env, Options options,
@@ -94,8 +95,15 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 				log().debug("no redirect required");
 			}
 		} else {
-			String message = application.getMessage(env.getLocale(), MessageConstants.AUTHENTICATION_ERROR);
-			fp.addErrorMessage(message);
+			String messageKey;
+			if (Boolean.TRUE.equals(env.removeAttribute(Scope.REQUEST, "subject.locked"))) {
+				messageKey = MessageConstants.USER_IS_LOCKED;
+			} else if (Boolean.TRUE.equals(env.removeAttribute(Scope.REQUEST, "subject.mustRecoverPassword"))) {
+				messageKey = MessageConstants.PASSWORD_RECOVERY_NEEDED;
+			} else {
+				messageKey = MessageConstants.AUTHENTICATION_ERROR;
+			}
+			fp.addErrorMessage(application.getMessage(env.getLocale(), messageKey));
 		}
 	}
 

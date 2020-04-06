@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,19 @@ import org.appng.api.model.Group;
 import org.appng.api.model.UserType;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.testsupport.persistence.TestDataProvider;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class AuthenticationTestDataProvider implements TestDataProvider {
+
+	private boolean withSalt = false;
+
+	public AuthenticationTestDataProvider() {
+
+	}
+
+	AuthenticationTestDataProvider(boolean withSalt) {
+		this.withSalt = withSalt;
+	}
 
 	public void writeTestData(EntityManager em) {
 
@@ -40,7 +51,7 @@ public class AuthenticationTestDataProvider implements TestDataProvider {
 
 	}
 
-	private static SubjectImpl getSubject(int i, UserType userType, List<Group> groups) {
+	private SubjectImpl getSubject(int i, UserType userType, List<Group> groups) {
 		SubjectImpl subject = new SubjectImpl();
 		subject.setAuthenticated(true);
 		subject.setDescription("Subject description-" + i);
@@ -51,9 +62,10 @@ public class AuthenticationTestDataProvider implements TestDataProvider {
 		subject.setUserType(userType);
 		subject.setVersion(new Date());
 		subject.setGroups(groups);
-		subject.setSalt("vh/ehxDEkAM=");
-		// "test"
-		subject.setDigest("VlBQQcXL+lpSZwu86CSYmdaB3pY=");
+		if (withSalt) {
+			subject.setSalt("vh/ehxDEkAM=");
+		}
+		subject.setDigest(new BCryptPasswordEncoder(4).encode("test"));
 		return subject;
 	}
 

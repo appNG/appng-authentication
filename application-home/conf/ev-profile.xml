@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="profileEvent" xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config />
+	<action id="editProfile">
+		<config>
+			<title>profile.edit</title>
+			<description></description>
+			<params>
+				<param name="form_action" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'editProfile'}" />
+		<datasource id="userProfile" />
+		<bean id="editProfile" />
+	</action>
+</event>

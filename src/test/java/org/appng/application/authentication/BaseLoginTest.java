@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,27 @@
  */
 package org.appng.application.authentication;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.appng.api.Platform;
+import org.appng.api.ProcessingException;
 import org.appng.api.Scope;
+import org.appng.api.model.Property;
+import org.appng.api.model.SimpleProperty;
+import org.appng.api.support.CallableAction;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.application.authentication.webform.LoginData;
 import org.appng.testsupport.TestBase;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.springframework.test.context.ContextConfiguration;
 
 @Ignore("can not be abstract, so ignore")
-@ContextConfiguration(locations = { TestBase.TESTCONTEXT_JPA, TestBase.TESTCONTEXT_CORE }, initializers = BaseLoginTest.class)
+@ContextConfiguration(locations = { TestBase.TESTCONTEXT_JPA,
+		TestBase.TESTCONTEXT_CORE }, initializers = BaseLoginTest.class)
 public class BaseLoginTest extends TestBase {
 
 	@PersistenceContext
@@ -46,4 +55,14 @@ public class BaseLoginTest extends TestBase {
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.BASE_URL, "/manager/appng");
 	}
 
+	@Override
+	protected List<Property> getPlatformProperties(String prefix) {
+		List<Property> platformProperties = super.getPlatformProperties(prefix);
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.MAX_LOGIN_ATTEMPTS, "3"));
+		return platformProperties;
+	}
+
+	protected CallableAction getLoginAction(LoginData loginData) throws ProcessingException {
+		return getAction("form-auth", "login").withParam("form_action", "loginUser").getCallableAction(loginData);
+	}
 }
