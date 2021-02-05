@@ -4,6 +4,7 @@
 	<config>
 		<template path="event-webform.xsl" />
 	</config>
+
 	<action id="login">
 		<config>
 			<title>login</title>
@@ -12,9 +13,10 @@
 			</params>
 		</config>
 		<condition expression="${form_action eq 'loginUser'}" />
-		<datasource id="loginData" />
+		<datasource id="loginDataMandatory" />
 		<bean id="loginUser" />
 	</action>
+
 	<action id="logout">
 		<config>
 			<title>logout</title>
@@ -28,6 +30,7 @@
 			<option name="forward" forward="${forward}" />
 		</bean>
 	</action>
+
 	<action id="resetPassword">
 		<config>
 			<title>reset.password</title>
@@ -69,4 +72,5 @@
 		<datasource id="loginData" />
 		<bean id="passwordReset" />
 	</action>
+
 </event>

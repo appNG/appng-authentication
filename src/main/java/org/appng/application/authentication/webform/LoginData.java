@@ -17,6 +17,8 @@ package org.appng.application.authentication.webform;
 
 import javax.validation.constraints.NotNull;
 
+import org.appng.api.NotBlank;
+
 import lombok.Setter;
 
 @Setter
@@ -28,6 +30,7 @@ public class LoginData {
 	private String passwordConfirmation;
 	private String digest;
 
+	@NotBlank(groups = Login.class, message = "{username.required}")
 	public String getUsername() {
 		return username;
 	}
@@ -37,6 +40,7 @@ public class LoginData {
 		return oldpassword;
 	}
 
+	@NotBlank(groups = Login.class, message = "{password.required}")
 	@NotNull(groups = ChangePassword.class, message = "{password.newRequired}")
 	public String getPassword() {
 		return password;
@@ -52,5 +56,8 @@ public class LoginData {
 	}
 
 	interface ChangePassword {
+	}
+
+	interface Login {
 	}
 }

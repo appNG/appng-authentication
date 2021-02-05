@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="login" eventId="form-auth" async="false">
+    <config>
+        <title id="login">Login</title>
+        <params>
+            <param name="form_action">loginUser</param>
+        </params>
+        <meta-data bindClass="org.appng.application.authentication.webform.LoginData">
+            <validation>
+                <group class="org.appng.application.authentication.webform.LoginData$Login"/>
+            </validation>
+            <field name="username" type="text" binding="username">
+                <label id="username">User</label>
+                <validation>
+                    <notNull>
+                        <message ref="username" class="ERROR" code="{username.required}">{username.required}</message>
+                    </notNull>
+                </validation>
+            </field>
+            <field name="password" type="password" binding="password">
+                <label id="password">Password</label>
+                <validation>
+                    <notNull>
+                        <message ref="password" class="ERROR" code="{password.required}">{password.required}</message>
+                    </notNull>
+                </validation>
+            </field>
+        </meta-data>
+    </config>
+    <condition expression="${form_action eq 'loginUser'}"/>
+    <messages>
+        <message ref="login" class="OK">Anmeldung erfolgreich</message>
+    </messages>
+    <datasource id="loginDataMandatory"/>
+    <data>
+        <selection id="lang" type="select">
+            <title id="lang">lang</title>
+        </selection>
+        <result>
+            <field name="username" type="text">
+                <value></value>
+            </field>
+            <field name="password" type="password">
+                <value></value>
+            </field>
+        </result>
+    </data>
+    <bean id="loginUser"/>
+</action>
