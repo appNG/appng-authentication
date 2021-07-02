@@ -8,6 +8,9 @@
 	<action id="login">
 		<config>
 			<title>login</title>
+			<permissions>
+				<permission ref="anonymous.login" mode="set" />
+			</permissions>
 			<params>
 				<param name="form_action" />
 			</params>
@@ -64,6 +67,9 @@
 	<action id="forgotPassword">
 		<config>
 			<title>forgot.password</title>
+			<permissions>
+				<permission ref="anonymous.forgotPassword" mode="set" />
+			</permissions>
 			<params>
 				<param name="form_action" />
 			</params>

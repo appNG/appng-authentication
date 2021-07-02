@@ -5,6 +5,9 @@
 	<datasource id="loginData">
 		<config>
 			<title>login</title>
+			<permissions>
+				<permission ref="anonymous.loginData" mode="set" />
+			</permissions>
 			<meta-data bindClass="org.appng.application.authentication.webform.LoginData">
 				<field name="username" type="text">
 					<label>username</label>
@@ -20,6 +23,9 @@
 	<datasource id="loginDataMandatory">
 		<config>
 			<title>login</title>
+			<permissions>
+				<permission ref="anonymous.loginData" mode="set" />
+			</permissions>
 			<meta-data bindClass="org.appng.application.authentication.webform.LoginData">
 				<validation>
 					<group class="org.appng.application.authentication.webform.LoginData$Login" />
