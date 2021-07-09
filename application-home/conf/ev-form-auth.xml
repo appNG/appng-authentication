@@ -15,7 +15,7 @@
 				<param name="form_action" />
 			</params>
 		</config>
-		<condition expression="${form_action eq 'loginUser'}" />
+		<condition expression="${form_action eq 'loginUser' or form_action eq 'login'}" />
 		<datasource id="loginDataMandatory" />
 		<bean id="loginUser" />
 	</action>
