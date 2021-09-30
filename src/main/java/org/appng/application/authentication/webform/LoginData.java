@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.appng.application.authentication.webform;
 
 import javax.validation.constraints.NotNull;
 
+import org.appng.api.NotBlank;
+
 import lombok.Setter;
 
 @Setter
@@ -28,6 +30,7 @@ public class LoginData {
 	private String passwordConfirmation;
 	private String digest;
 
+	@NotBlank(groups = Login.class, message = "{username.required}")
 	public String getUsername() {
 		return username;
 	}
@@ -37,6 +40,7 @@ public class LoginData {
 		return oldpassword;
 	}
 
+	@NotBlank(groups = Login.class, message = "{password.required}")
 	@NotNull(groups = ChangePassword.class, message = "{password.newRequired}")
 	public String getPassword() {
 		return password;
@@ -52,5 +56,8 @@ public class LoginData {
 	}
 
 	interface ChangePassword {
+	}
+
+	interface Login {
 	}
 }

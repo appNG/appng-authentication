@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.appng.api.model.Subject;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.BaseLoginTest;
+import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.xml.platform.Message;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -32,6 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginUserTest extends BaseLoginTest {
+
+	static {
+		WritingXmlValidator.writeXml = false;
+	}
 
 	@Test
 	@Transactional
@@ -46,6 +51,9 @@ public class LoginUserTest extends BaseLoginTest {
 		Assert.assertNull(environment.getSubject());
 
 		callableAction.perform();
+
+		validate(callableAction.getAction());
+
 		Subject loginSubject = environment.getSubject();
 		Assert.assertNotNull(loginSubject);
 		Assert.assertEquals("subject-3", loginSubject.getName());
@@ -68,9 +76,23 @@ public class LoginUserTest extends BaseLoginTest {
 
 		Assert.assertNull(environment.getSubject());
 		FieldProcessor fp = callableAction.perform();
+		validate(callableAction.getAction());
 		Message message = fp.getMessages().getMessageList().get(0);
 		Assert.assertEquals("Wrong username or password", message.getContent());
 		Assert.assertNull(environment.getSubject());
+	}
+
+	@Test
+	@Transactional
+	public void testLoginNoData() throws Exception {
+		new AuthenticationTestDataProvider().writeTestData(em);
+
+		LoginData loginData = new LoginData();
+		CallableAction callableAction = getAction(loginData);
+
+		Assert.assertNull(environment.getSubject());		
+		callableAction.perform();
+		validate(callableAction.getAction());
 	}
 
 	private CallableAction getAction(LoginData loginData) throws ProcessingException {

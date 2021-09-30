@@ -5,7 +5,7 @@
 	<artifactId>appng-authentication</artifactId>
 	<packaging>jar</packaging>
 	<name>appNG Authentication</name>
-	<version>1.13.0</version>
+	<version>1.13.1</version>
 	<description><![CDATA[Authentication Application]]></description>
 	<url>https://www.appng.org</url>
 
