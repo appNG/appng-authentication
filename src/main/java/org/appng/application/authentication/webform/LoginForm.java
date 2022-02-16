@@ -64,6 +64,8 @@ public class LoginForm implements DataProvider {
 			dataContainer.getSelections().add(langSelection);
 		}
 		dataContainer.setItem(new LoginData());
+		((DefaultEnvironment) environment).getServletResponse()
+				.setHeader(com.google.common.net.HttpHeaders.CONTENT_SECURITY_POLICY, "frame-ancestors 'none'");
 		return dataContainer;
 	}
 
