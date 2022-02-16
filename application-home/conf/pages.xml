@@ -56,7 +56,7 @@
 								<param name="action">${action}</param>
 								<param name="forward">${forward}</param>
 							</params>
-							<condition expression="${false}" />
+							<condition expression="${action eq 'logout'}" />
 						</action>
 					</element>
 					<element>
