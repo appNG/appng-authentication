@@ -78,8 +78,8 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 						.getBoolean(AuthenticationSettings.ENABLE_DEEPLINKS, Boolean.TRUE);
 
 				String targetPage = null;
-				if (enableDeeplinks && (!executePath.startsWith(originalServletPath))
-						&& (!originalServletPath.startsWith(executePath))) {
+				if (null != executePath && enableDeeplinks && !executePath.startsWith(originalServletPath)
+						&& !originalServletPath.startsWith(executePath)) {
 					targetPage = env.removeAttribute(Scope.SESSION, PRE_LOGIN_PATH);
 					log().debug("{} is enabled, using session attribute {} as target: {}",
 							AuthenticationSettings.ENABLE_DEEPLINKS, PRE_LOGIN_PATH, targetPage);
