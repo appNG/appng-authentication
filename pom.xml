@@ -5,7 +5,7 @@
 	<artifactId>appng-authentication</artifactId>
 	<packaging>jar</packaging>
 	<name>appNG Authentication</name>
-	<version>1.13.1</version>
+	<version>1.13.2</version>
 	<description><![CDATA[Authentication Application]]></description>
 	<url>https://www.appng.org</url>
 
@@ -75,7 +75,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>

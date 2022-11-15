@@ -31,6 +31,8 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.net.HttpHeaders;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginUserTest extends BaseLoginTest {
 
@@ -61,7 +63,10 @@ public class LoginUserTest extends BaseLoginTest {
 
 		Mockito.verify(site).sendRedirect(Mockito.eq(environment), Mockito.eq("/manager/appng/appng-manager"),
 				Mockito.eq(HttpStatus.FOUND.value()));
-		((DefaultEnvironment) environment).logoutSubject();
+		DefaultEnvironment defaultEnv = (DefaultEnvironment) environment;
+		defaultEnv.logoutSubject();
+		Assert.assertEquals("frame-ancestors 'none'",
+				defaultEnv.getServletResponse().getHeader(HttpHeaders.CONTENT_SECURITY_POLICY));
 	}
 
 	@Test
