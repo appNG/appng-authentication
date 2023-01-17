@@ -75,22 +75,6 @@ public class PasswordReset extends AbstractLogon {
 		}
 	}
 
-	/**
-	 * resets the password or send password reset mail. Returns true if properties of the {@link AuthSubject} has
-	 * changed which have to be saved
-	 * 
-	 * @param  site
-	 * @param  application
-	 * @param  environment
-	 * @param  request
-	 * @param  fp
-	 * @param  service
-	 * @param  subject
-	 * @param  passwordPolicy
-	 * @param  username
-	 * @param  email
-	 * @return
-	 */
 	protected boolean doReset(Site site, Application application, Environment environment, Request request,
 			FieldProcessor fp, CoreService service, AuthSubject subject, PasswordPolicy passwordPolicy, String username,
 			String email) {
