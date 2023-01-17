@@ -3,6 +3,7 @@ package org.appng.application.authentication.saml;
 import org.appng.api.model.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,22 +20,34 @@ public class SamlController {
 
 	private @Autowired Site site;
 
-	@GetMapping("/saml/sign-on")
-	@PostMapping("/saml/sign-on")
+	@PostMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE })
 	public ResponseEntity<String> signOn(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
 
-	@GetMapping("/saml/logout")
-	@PostMapping("/saml/logout")
+	@GetMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE })
+	public ResponseEntity<String> signOn() {
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/saml/logout", produces = { MediaType.TEXT_PLAIN_VALUE })
 	public ResponseEntity<String> logout(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
 
-	@GetMapping("/saml")
-	@PostMapping("/saml")
+	@GetMapping(path = "/saml/logout", produces = { MediaType.TEXT_PLAIN_VALUE })
+	public ResponseEntity<String> logout() {
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE })
 	public ResponseEntity<String> reply(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
+	}
+
+	@GetMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE })
+	public ResponseEntity<String> reply() {
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 }
