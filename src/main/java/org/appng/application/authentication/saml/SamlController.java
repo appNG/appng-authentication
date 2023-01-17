@@ -20,7 +20,8 @@ public class SamlController {
 
 	private @Autowired Site site;
 
-	@PostMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE })
+	@PostMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = {
+			MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<String> signOn(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
@@ -30,7 +31,8 @@ public class SamlController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@PostMapping(path = "/saml/logout", produces = { MediaType.TEXT_PLAIN_VALUE })
+	@PostMapping(path = "/saml/logout", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = {
+			MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<String> logout(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
@@ -40,7 +42,8 @@ public class SamlController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@PostMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE })
+	@PostMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = { MediaType.TEXT_PLAIN_VALUE,
+			MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<String> reply(@RequestBody String payload) {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
