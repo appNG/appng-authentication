@@ -15,10 +15,12 @@
  */
 package org.appng.application.authentication.webform;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.SiteProperties;
@@ -108,6 +110,15 @@ public class LoginFormTest extends TestBase {
 		context.getBean(LoginForm.class).getData(site, application, environment, null, request, null);
 		Assert.assertEquals(Locale.ENGLISH.getLanguage(), environment.getSubject().getLanguage());
 		Assert.assertEquals(Locale.ENGLISH, environment.getLocale());
+	}
+
+	@Override
+	protected List<Property> getPlatformProperties(String prefix) {
+		List<Property> platformProperties = super.getPlatformProperties(prefix);
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.APPNG_DATA, "."));
+		// JDK-8254876 first segment of Path must exist!
+		new File("target/uploads").mkdirs();
+		return platformProperties;
 	}
 
 	@Override

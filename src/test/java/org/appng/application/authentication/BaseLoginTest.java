@@ -15,6 +15,7 @@
  */
 package org.appng.application.authentication;
 
+import java.io.File;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -59,6 +60,9 @@ public class BaseLoginTest extends TestBase {
 	protected List<Property> getPlatformProperties(String prefix) {
 		List<Property> platformProperties = super.getPlatformProperties(prefix);
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.MAX_LOGIN_ATTEMPTS, "3"));
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.APPNG_DATA, "."));
+		// JDK-8254876 first segment of Path must exist!
+		new File("target/uploads").mkdirs();
 		return platformProperties;
 	}
 
