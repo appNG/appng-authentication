@@ -89,8 +89,8 @@ public class LoginFormTest extends TestBase {
 		addParameter("action", "login");
 		initParameters();
 		context.getBean(LoginForm.class).getData(site, application, environment, null, request, null);
-		Assert.assertEquals(Locale.GERMAN.getLanguage(), environment.getSubject().getLanguage());
-		Assert.assertEquals(Locale.GERMAN, environment.getLocale());
+		Assert.assertEquals(Locale.ENGLISH.getLanguage(), environment.getSubject().getLanguage());
+		Assert.assertEquals(Locale.ENGLISH, environment.getLocale());
 		Mockito.verify(site).sendRedirect(Mockito.eq(environment), Mockito.eq("?action=login"));
 	}
 
@@ -124,7 +124,7 @@ public class LoginFormTest extends TestBase {
 	@Override
 	protected List<Property> getSiteProperties(String prefix) {
 		List<Property> siteProperties = super.getSiteProperties(prefix);
-		siteProperties.add(new SimpleProperty(prefix + SiteProperties.SUPPORTED_LANGUAGES, "de,en"));
+		siteProperties.add(new SimpleProperty(prefix + SiteProperties.SUPPORTED_LANGUAGES, "en,de"));
 		return siteProperties;
 	}
 
