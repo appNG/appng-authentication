@@ -17,11 +17,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
+import org.appng.api.model.Group;
 import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.model.UserType;
 import org.appng.api.support.ElementHelper;
+import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.AuthenticationSettings;
 import org.appng.application.authentication.MessageConstants;
 import org.appng.core.domain.SubjectImpl;
@@ -119,6 +121,7 @@ public class SamlController implements InitializingBean {
 		}
 		String messageText = MessageConstants.USER_LOGIN_FAIL;
 		MessageType level = MessageType.ERROR;
+		String target = forwardTarget;
 		try {
 			String parameter = request.getParameter("SAMLResponse");
 			SamlResponse samlResp = samlClient.decodeAndValidateSamlResponse(parameter, request.getMethod());
@@ -154,6 +157,9 @@ public class SamlController implements InitializingBean {
 					if (success) {
 						messageText = MessageConstants.USER_AUTHENTICATED;
 						level = MessageType.OK;
+						List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
+								.collect(Collectors.toList());
+						target = AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
 					}
 				}
 			} else {
@@ -172,7 +178,8 @@ public class SamlController implements InitializingBean {
 		ElementHelper.addMessages(environment, messages);
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.set(HttpHeaders.LOCATION, forwardTarget);
+		headers.set(HttpHeaders.LOCATION, target);
+		LOGGER.info("Forwarding to {}", target);
 		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
@@ -192,6 +199,7 @@ public class SamlController implements InitializingBean {
 			user.setUserType(UserType.LOCAL_USER);
 			Subject newUser = coreService.createSubject(user);
 			coreService.addGroupsToSubject(user.getName(), userGroups, true);
+			LOGGER.info("Created user {} with group(s)", userName, StringUtils.join(userGroups, ", "));
 			return newUser;
 		} catch (BusinessException e) {
 			LOGGER.error("Error creating new user " + userName, e);
