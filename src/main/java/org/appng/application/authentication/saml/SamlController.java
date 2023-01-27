@@ -23,6 +23,7 @@ import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AttributeValue;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -111,8 +112,7 @@ public class SamlController implements InitializingBean {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
 
-	@PostMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = { MediaType.TEXT_PLAIN_VALUE,
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE })
+	@PostMapping(path = "/saml", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<Void> reply(HttpServletRequest request, Environment environment) {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
@@ -125,13 +125,13 @@ public class SamlController implements InitializingBean {
 
 			Assertion assertion = samlResp.getAssertion();
 
-			Map<String, List<XMLObject>> stringAttributes = new HashMap<>();
+			Map<String, List<String>> stringAttributes = new HashMap<>();
 
 			for (AttributeStatement as : assertion.getAttributeStatements()) {
 				for (Attribute attr : as.getAttributes()) {
 					String name = attr.getName();
-					List<XMLObject> values = attr.getAttributeValues().stream()//.filter(v -> (v instanceof XSString))
-							//.map(XSString.class::cast).map(XSString::getValue)
+					List<String> values = attr.getAttributeValues().stream().filter(v -> (v instanceof AttributeValue))
+							.map(AttributeValue.class::cast).map(AttributeValue::getTextContent)
 							.collect(Collectors.toList());
 					stringAttributes.put(name, values);
 					LOGGER.debug("Attribute {} with values {}", name, StringUtils.join(values, ", "));
@@ -140,22 +140,22 @@ public class SamlController implements InitializingBean {
 
 			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
 
-//			String emailAttributeName = "Email";
-//			List<String> emails = stringAttributes.get(emailAttributeName);
-//			if (!emails.isEmpty()) {
-//				String email = emails.get(0);
-//				Subject subject = coreService.getSubjectByEmail(email);
-//				if (null == subject) {
-//					// TODO create subject with basic user group?
-//
-//				} else {
-//					coreService.loginByUserName(environment, subject.getAuthName());
-//					HttpHeaders headers = new HttpHeaders();
-//					// TODO forward to certain application
-//					headers.set(HttpHeaders.LOCATION, "/manager");
-//					response = new ResponseEntity<>(headers, HttpStatus.FOUND);
-//				}
-//			}
+			String emailAttributeName = "Email";
+			List<String> emails = stringAttributes.get(emailAttributeName);
+			if (!emails.isEmpty()) {
+				String email = emails.get(0);
+				Subject subject = coreService.getSubjectByEmail(email);
+				if (null == subject) {
+					// TODO create subject with basic user group?
+
+				} else {
+					coreService.loginByUserName(environment, subject.getAuthName());
+					HttpHeaders headers = new HttpHeaders();
+					// TODO forward to certain application
+					headers.set(HttpHeaders.LOCATION, "/manager");
+					response = new ResponseEntity<>(headers, HttpStatus.FOUND);
+				}
+			}
 
 		} catch (SamlException e) {
 			LOGGER.error("Error processing SAML Response", e);
