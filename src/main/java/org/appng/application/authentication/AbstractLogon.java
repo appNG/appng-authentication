@@ -15,6 +15,7 @@
  */
 package org.appng.application.authentication;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,8 +111,9 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 
 	protected void processLogonResult(Site site, Application application, Environment env, Options options,
 			FieldProcessor fp, boolean success) {
-		List<String> groupNames = env.getSubject().getGroups().stream().map(Group::getName)
-				.collect(Collectors.toList());
+		List<String> groupNames = env.isSubjectAuthenticated()
+				? env.getSubject().getGroups().stream().map(Group::getName).collect(Collectors.toList())
+				: Collections.emptyList();
 		String successPage = getSuccessPage(application.getProperties(), success, groupNames);
 		processLogonResult(site, application, env, options, fp, success, successPage);
 	}
