@@ -36,6 +36,7 @@
 				<field name="password" type="password">
 					<label>password</label>
 				</field>
+				<field name="ssoLink" type="text" hidden="true" />
 			</meta-data>
 		</config>
 		<bean id="loginForm" />

@@ -82,6 +82,7 @@ public class SamlController implements InitializingBean {
 	private @Value("${" + AuthenticationSettings.SAML_FORWARD_TARGET + "}") String forwardTarget;
 	private List<String> userGroups;
 	private SamlClient samlClient;
+	private String ssoEndpoint;
 
 	public static String CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/";
 
@@ -92,9 +93,9 @@ public class SamlController implements InitializingBean {
 					.getBytes(StandardCharsets.UTF_8);
 			userGroups = application.getProperties().getList(AuthenticationSettings.SAML_CREATE_NEW_USER_WITH_GROUPS,
 					",");
-			String assertionConsumerUrl = String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(),
+			ssoEndpoint = String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(),
 					application.getName());
-			samlClient = SamlClient.fromMetadata(clientId, assertionConsumerUrl,
+			samlClient = SamlClient.fromMetadata(clientId, ssoEndpoint,
 					new InputStreamReader(new ByteArrayInputStream(samlDescriptor)), SamlClient.SamlIdpBinding.POST);
 			LOGGER.info("Created SAML client '{}' with endpoint {}", clientId, samlClient.getIdentityProviderUrl());
 		} else {
@@ -121,7 +122,8 @@ public class SamlController implements InitializingBean {
 		try {
 			String parameter = request.getParameter("SAMLResponse");
 			SamlResponse samlResp = samlClient.decodeAndValidateSamlResponse(parameter, request.getMethod());
-			LOGGER.debug("Received SAMLResponse for {}", samlResp.getNameID());
+			String email = samlResp.getNameID();
+			LOGGER.debug("Received SAMLResponse for {}", email);
 
 			Assertion assertion = samlResp.getAssertion();
 			Map<String, List<String>> attributes = new HashMap<>();
@@ -138,7 +140,6 @@ public class SamlController implements InitializingBean {
 			}
 
 			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
-			String email = attributes.get(CLAIM + "name").get(0);
 			Subject subject = coreService.getSubjectByEmail(email);
 			if (null == subject && !userGroups.isEmpty()) {
 				subject = createUser(environment, email, attributes);
@@ -176,7 +177,7 @@ public class SamlController implements InitializingBean {
 	}
 
 	private Subject createUser(Environment environment, String email, Map<String, List<String>> attributes) {
-		String givenname = attributes.get(CLAIM + "givenName").get(0);
+		String givenname = attributes.get(CLAIM + "givenname").get(0);
 		String surname = attributes.get(CLAIM + "surname").get(0);
 		String userName = StringUtils.lowerCase(StringNormalizer.normalize(givenname + "." + surname));
 		try {
@@ -214,6 +215,14 @@ public class SamlController implements InitializingBean {
 			return NOT_IMPLEMENTED;
 		}
 		return new ResponseEntity<>(payload, HttpStatus.OK);
+	}
+
+	public boolean isEnabled() {
+		return samlEnabled;
+	}
+
+	public String getEndpoint() {
+		return ssoEndpoint;
 	}
 
 }

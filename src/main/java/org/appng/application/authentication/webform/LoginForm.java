@@ -37,24 +37,26 @@ import org.appng.api.model.Subject;
 import org.appng.api.support.SelectionFactory;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.AbstractLogon;
+import org.appng.application.authentication.saml.SamlController;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class LoginForm implements DataProvider {
 
 	private static final String PARAM_LANG = "lang";
 	private static final String PARAM_ACTION = "action";
 	private static final String SLASH = "/";
 
-	@Autowired
-	SelectionFactory selectionFactory;
+	private final SelectionFactory selectionFactory;
+	private final SamlController samlController;
 
 	public DataContainer getData(Site site, Application application, Environment environment, Options options,
 			Request request, FieldProcessor fieldProcessor) {
@@ -63,7 +65,11 @@ public class LoginForm implements DataProvider {
 		if (null != langSelection) {
 			dataContainer.getSelections().add(langSelection);
 		}
-		dataContainer.setItem(new LoginData());
+		LoginData loginData = new LoginData();
+		if(samlController.isEnabled()) {
+			loginData.setSsoLink(samlController.getEndpoint());
+		}
+		dataContainer.setItem(loginData);
 		((DefaultEnvironment) environment).getServletResponse()
 				.setHeader(com.google.common.net.HttpHeaders.CONTENT_SECURITY_POLICY, "frame-ancestors 'none'");
 		return dataContainer;

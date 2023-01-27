@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 
 import org.appng.api.NotBlank;
 
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
@@ -29,6 +30,7 @@ public class LoginData {
 	private String password;
 	private String passwordConfirmation;
 	private String digest;
+	private @Getter String ssoLink;
 
 	@NotBlank(groups = Login.class, message = "{username.required}")
 	public String getUsername() {
