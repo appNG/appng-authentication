@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -27,6 +28,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Subject;
+import org.appng.application.authentication.AuthenticationSettings;
 import org.appng.testsupport.TestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -126,6 +128,15 @@ public class LoginFormTest extends TestBase {
 		List<Property> siteProperties = super.getSiteProperties(prefix);
 		siteProperties.add(new SimpleProperty(prefix + SiteProperties.SUPPORTED_LANGUAGES, "en,de"));
 		return siteProperties;
+	}
+
+	@Override
+	protected Properties getProperties() {
+		Properties props = super.getProperties();
+		props.put(AuthenticationSettings.SAML_ENABLED, "false");
+		props.put(AuthenticationSettings.SAML_CLIENT_ID, "");
+		props.put(AuthenticationSettings.SAML_FORWARD_TARGET, "");
+		return props;
 	}
 
 }

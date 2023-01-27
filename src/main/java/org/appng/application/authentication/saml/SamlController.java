@@ -162,7 +162,6 @@ public class SamlController implements InitializingBean {
 
 		} catch (SamlException e) {
 			LOGGER.error("Error processing SAML Response", e);
-			messageText = "Error processing login request (#" + e.hashCode() + ")";
 		}
 		Messages messages = new Messages();
 		Message message = new Message();

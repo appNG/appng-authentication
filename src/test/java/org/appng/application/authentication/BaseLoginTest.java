@@ -17,6 +17,7 @@ package org.appng.application.authentication;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -54,6 +55,15 @@ public class BaseLoginTest extends TestBase {
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.EXECUTE_PATH, "/manager");
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.SERVLETPATH, "/manager");
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.BASE_URL, "/manager/appng");
+	}
+
+	@Override
+	protected Properties getProperties() {
+		Properties props = super.getProperties();
+		props.put(AuthenticationSettings.SAML_ENABLED, "false");
+		props.put(AuthenticationSettings.SAML_CLIENT_ID, "");
+		props.put(AuthenticationSettings.SAML_FORWARD_TARGET, "");
+		return props;
 	}
 
 	@Override
