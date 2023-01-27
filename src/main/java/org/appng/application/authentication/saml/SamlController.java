@@ -278,6 +278,7 @@ public class SamlController implements InitializingBean {
 		if (StringUtils.isNotBlank(nameID)) {
 			try {
 				// hand-crafted SP initiated logout
+				// https://learn.microsoft.com/en-us/azure/active-directory/develop/single-sign-out-saml-protocol
 				RestTemplate restTemplate = new RestTemplate();
 				MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 				map.add("SAMLRequest", samlClient.getLogoutRequest(nameID));
@@ -286,7 +287,7 @@ public class SamlController implements InitializingBean {
 				URI url = new URI(samlClient.getIdentityProviderUrl());
 				ResponseEntity<String> logout = restTemplate
 						.exchange(new RequestEntity<>(map, headers, HttpMethod.POST, url), String.class);
-				LOGGER.info("Logged out {} at {} returned {}", nameID, url, logout.getStatusCode());
+				LOGGER.info("Logging out {} at {} returned {}", nameID, url, logout.getStatusCode());
 			} catch (SamlException | URISyntaxException e) {
 				LOGGER.error("Error performing logout", e);
 			}
