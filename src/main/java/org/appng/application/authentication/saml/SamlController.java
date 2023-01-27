@@ -16,9 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
+import org.appng.api.Scope;
 import org.appng.api.model.Application;
-import org.appng.api.model.Group;
 import org.appng.api.model.AuthSubject.PasswordChangePolicy;
+import org.appng.api.model.Group;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.model.UserType;
@@ -50,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.coveo.saml.SamlClient;
 import com.coveo.saml.SamlException;
+import com.coveo.saml.SamlLogoutResponse;
 import com.coveo.saml.SamlResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -71,6 +73,8 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("unchecked")
 public class SamlController implements InitializingBean {
 
+	private static String SAML_LOGIN = "SamlLogin";
+
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
 
@@ -84,7 +88,6 @@ public class SamlController implements InitializingBean {
 	private @Value("${" + AuthenticationSettings.SAML_FORWARD_TARGET + "}") String forwardTarget;
 	private List<String> userGroups;
 	private SamlClient samlClient;
-	private String ssoEndpoint;
 
 	public static String CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/";
 
@@ -95,11 +98,11 @@ public class SamlController implements InitializingBean {
 					.getBytes(StandardCharsets.UTF_8);
 			userGroups = application.getProperties().getList(AuthenticationSettings.SAML_CREATE_NEW_USER_WITH_GROUPS,
 					",");
-			ssoEndpoint = String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(),
-					application.getName());
-			samlClient = SamlClient.fromMetadata(clientId, ssoEndpoint,
+			String endpoint = getEndpoint();
+			samlClient = SamlClient.fromMetadata(clientId, endpoint,
 					new InputStreamReader(new ByteArrayInputStream(samlDescriptor)), SamlClient.SamlIdpBinding.POST);
-			LOGGER.info("Created SAML client '{}' with endpoint {}", clientId, samlClient.getIdentityProviderUrl());
+			LOGGER.info("Created SAML client '{}' with endpoint {} and IDP", clientId, endpoint,
+					samlClient.getIdentityProviderUrl());
 		} else {
 			LOGGER.debug("SAML is disabled");
 		}
@@ -160,6 +163,7 @@ public class SamlController implements InitializingBean {
 						List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
 								.collect(Collectors.toList());
 						target = AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
+						environment.setAttribute(Scope.SESSION, SAML_LOGIN, Boolean.TRUE);
 					}
 				}
 			} else {
@@ -216,21 +220,54 @@ public class SamlController implements InitializingBean {
 		return new ResponseEntity<>(payload, HttpStatus.OK);
 	}
 
-	@PostMapping(path = "/saml/logout", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = {
-			MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<String> logout(@RequestBody String payload) {
+	@PostMapping(path = "/saml/logout", consumes = { MediaType.APPLICATION_FORM_URLENCODED_VALUE })
+	public ResponseEntity<String> logout(HttpServletRequest request, Environment environment) {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
 		}
-		return new ResponseEntity<>(payload, HttpStatus.OK);
+		LOGGER.debug("logout request: {}", request.getParameterMap());
+		String response = request.getParameter("SAMLResponse");
+		try {
+			SamlLogoutResponse samlResp = samlClient.decodeAndValidateSamlLogoutResponse(response, request.getMethod());
+			LOGGER.debug("logout response: {}", samlResp);
+
+		} catch (SamlException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@GetMapping(path = "/saml/logout")
+	public void logout(HttpServletResponse response) {
+		if (!samlEnabled) {
+			response.setStatus(NOT_IMPLEMENTED.getStatusCodeValue());
+			return;
+		}
+		try {
+			samlClient.redirectToIdentityProviderLogout(response, "status", "statustext");
+		} catch (IOException | SamlException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isEnabled() {
 		return samlEnabled;
 	}
 
+	public boolean isSamlLogin(Environment environment) {
+		return Boolean.TRUE.equals(environment.getAttribute(Scope.SESSION, SAML_LOGIN));
+	}
+
 	public String getEndpoint() {
-		return ssoEndpoint;
+		return String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(), application.getName());
+	}
+
+	public String getLogoutPath() {
+		return String.format("%s/service/%s/%s/rest/saml/logout", site.getDomain(), site.getName(),
+				application.getName());
 	}
 
 }

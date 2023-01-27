@@ -27,6 +27,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.MessageConstants;
+import org.appng.application.authentication.saml.SamlController;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -42,12 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class LogoutUser extends AbstractLogon implements ActionProvider<LoginData> {
 
-	public LogoutUser(CoreService coreService) {
+	private SamlController samlController;
+
+	public LogoutUser(CoreService coreService, SamlController samlController) {
 		super(coreService);
+		this.samlController = samlController;
 	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData valueHolder, FieldProcessor fp) {
+		boolean samlLogin = samlController.isSamlLogin(environment);
 		if (environment.isSubjectAuthenticated()) {
 			Locale locale = environment.getLocale();
 			coreService.logoutSubject(environment);
@@ -55,13 +60,17 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 			fp.addOkMessage(message);
 		}
 		String forward = request.getParameter("forward");
-		if (StringUtils.isBlank(forward)) {
-			LOGGER.info("request parameter 'forward' not set, using option {}", options.getOption("forward"));
-			forward = options.getOptionValue("forward", "forward");
-		}
-		if (StringUtils.isNotBlank(forward)) {
-			LOGGER.info("forwarding to {}", forward);
-			site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
+		if (samlLogin) {
+			forward = samlController.getLogoutPath();
+		} else {
+			if (StringUtils.isBlank(forward)) {
+				LOGGER.info("request parameter 'forward' not set, using option {}", options.getOption("forward"));
+				forward = options.getOptionValue("forward", "forward");
+			}
+			if (StringUtils.isNotBlank(forward)) {
+				LOGGER.info("forwarding to {}", forward);
+				site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
+			}
 		}
 	}
 
