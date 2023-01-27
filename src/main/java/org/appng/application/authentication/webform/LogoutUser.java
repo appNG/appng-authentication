@@ -52,7 +52,7 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData valueHolder, FieldProcessor fp) {
-		boolean samlLogin = samlController.isSamlLogin(environment);
+		samlController.logout(environment);
 		if (environment.isSubjectAuthenticated()) {
 			Locale locale = environment.getLocale();
 			coreService.logoutSubject(environment);
@@ -60,17 +60,13 @@ public class LogoutUser extends AbstractLogon implements ActionProvider<LoginDat
 			fp.addOkMessage(message);
 		}
 		String forward = request.getParameter("forward");
-		if (samlLogin) {
-			forward = samlController.getLogoutPath();
-		} else {
-			if (StringUtils.isBlank(forward)) {
-				LOGGER.info("request parameter 'forward' not set, using option {}", options.getOption("forward"));
-				forward = options.getOptionValue("forward", "forward");
-			}
-			if (StringUtils.isNotBlank(forward)) {
-				LOGGER.info("forwarding to {}", forward);
-				site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
-			}
+		if (StringUtils.isBlank(forward)) {
+			LOGGER.info("request parameter 'forward' not set, using option {}", options.getOption("forward"));
+			forward = options.getOptionValue("forward", "forward");
+		}
+		if (StringUtils.isNotBlank(forward)) {
+			LOGGER.info("forwarding to {}", forward);
+			site.sendRedirect(environment, forward, HttpStatus.FOUND.value());
 		}
 	}
 

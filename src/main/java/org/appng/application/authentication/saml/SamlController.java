@@ -3,6 +3,8 @@ package org.appng.application.authentication.saml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,13 +43,18 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.coveo.saml.SamlClient;
 import com.coveo.saml.SamlException;
@@ -73,7 +80,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("unchecked")
 public class SamlController implements InitializingBean {
 
-	private static String SAML_LOGIN = "SamlLogin";
+	private static String SAML_NAME_ID = "SamlNameID";
 
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
@@ -163,7 +170,7 @@ public class SamlController implements InitializingBean {
 						List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
 								.collect(Collectors.toList());
 						target = AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
-						environment.setAttribute(Scope.SESSION, SAML_LOGIN, Boolean.TRUE);
+						environment.setAttribute(Scope.SESSION, SAML_NAME_ID, email);
 					}
 				}
 			} else {
@@ -257,10 +264,6 @@ public class SamlController implements InitializingBean {
 		return samlEnabled;
 	}
 
-	public boolean isSamlLogin(Environment environment) {
-		return Boolean.TRUE.equals(environment.getAttribute(Scope.SESSION, SAML_LOGIN));
-	}
-
 	public String getEndpoint() {
 		return String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(), application.getName());
 	}
@@ -268,6 +271,26 @@ public class SamlController implements InitializingBean {
 	public String getLogoutPath() {
 		return String.format("%s/service/%s/%s/rest/saml/logout", site.getDomain(), site.getName(),
 				application.getName());
+	}
+
+	public void logout(Environment environment) {
+		String nameID = environment.getAttribute(Scope.SESSION, SAML_NAME_ID);
+		if (StringUtils.isNotBlank(nameID)) {
+			try {
+				// hand-crafted SP initiated logout
+				RestTemplate restTemplate = new RestTemplate();
+				MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+				map.add("SAMLRequest", samlClient.getLogoutRequest(nameID));
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+				URI url = new URI(samlClient.getIdentityProviderUrl());
+				ResponseEntity<String> logout = restTemplate
+						.exchange(new RequestEntity<>(map, headers, HttpMethod.POST, url), String.class);
+				LOGGER.info("Logged out {} at {} returned {}", nameID, url, logout.getStatusCode());
+			} catch (SamlException | URISyntaxException e) {
+				LOGGER.error("Error performing logout", e);
+			}
+		}
 	}
 
 }
