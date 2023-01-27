@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +14,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
+import org.appng.api.model.UserType;
 import org.appng.api.support.ElementHelper;
+import org.appng.application.authentication.AuthenticationSettings;
+import org.appng.application.authentication.MessageConstants;
+import org.appng.core.domain.SubjectImpl;
 import org.appng.core.service.CoreService;
+import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
@@ -28,6 +36,7 @@ import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,10 +75,12 @@ public class SamlController implements InitializingBean {
 	private final Site site;
 	private final Application application;
 	private final CoreService coreService;
+	private final MessageSource messageSource;
 
-	private @Value("${samlEnabled:false}") boolean samlEnabled;
-	private @Value("${samlClientId:}") String clientId;
-//	private @Value("${samlAssertionConsumerUrl:}") String assertionConsumerUrl;
+	private @Value("${" + AuthenticationSettings.SAML_ENABLED + "}") boolean samlEnabled;
+	private @Value("${" + AuthenticationSettings.SAML_CLIENT_ID + "}") String clientId;
+	private @Value("${" + AuthenticationSettings.SAML_FORWARD_TARGET + "}") String forwardTarget;
+	private List<String> userGroups;
 	private SamlClient samlClient;
 
 	public static String CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/";
@@ -77,13 +88,15 @@ public class SamlController implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (samlEnabled) {
-			byte[] samlDescriptor = application.getProperties().getClob("samlDescriptor")
+			byte[] samlDescriptor = application.getProperties().getClob(AuthenticationSettings.SAML_DESCRIPTOR)
 					.getBytes(StandardCharsets.UTF_8);
+			userGroups = application.getProperties().getList(AuthenticationSettings.SAML_CREATE_NEW_USER_WITH_GROUPS,
+					",");
 			String assertionConsumerUrl = String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(),
 					application.getName());
 			samlClient = SamlClient.fromMetadata(clientId, assertionConsumerUrl,
 					new InputStreamReader(new ByteArrayInputStream(samlDescriptor)), SamlClient.SamlIdpBinding.POST);
-			LOGGER.debug("Created SAML client for '' with endpoint {}", clientId, assertionConsumerUrl);
+			LOGGER.info("Created SAML client '{}' with endpoint {}", clientId, samlClient.getIdentityProviderUrl());
 		} else {
 			LOGGER.debug("SAML is disabled");
 		}
@@ -96,6 +109,94 @@ public class SamlController implements InitializingBean {
 			return;
 		}
 		samlClient.redirectToIdentityProvider(response, null);
+	}
+
+	@PostMapping(path = "/saml", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ResponseEntity<Void> reply(HttpServletRequest request, Environment environment) {
+		if (!samlEnabled) {
+			return NOT_IMPLEMENTED;
+		}
+		String messageText = MessageConstants.USER_LOGIN_FAIL;
+		MessageType level = MessageType.ERROR;
+		try {
+			String parameter = request.getParameter("SAMLResponse");
+			SamlResponse samlResp = samlClient.decodeAndValidateSamlResponse(parameter, request.getMethod());
+			LOGGER.debug("Received SAMLResponse for {}", samlResp.getNameID());
+
+			Assertion assertion = samlResp.getAssertion();
+			Map<String, List<String>> attributes = new HashMap<>();
+
+			for (AttributeStatement as : assertion.getAttributeStatements()) {
+				for (Attribute attr : as.getAttributes()) {
+					String name = attr.getName();
+					List<String> values = attr.getAttributeValues().stream().filter(v -> (v instanceof AttributeValue))
+							.map(AttributeValue.class::cast).map(AttributeValue::getTextContent)
+							.collect(Collectors.toList());
+					attributes.put(name, values);
+					LOGGER.debug("Attribute {} with values {}", name, StringUtils.join(values, ", "));
+				}
+			}
+
+			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
+			String email = attributes.get(CLAIM + "name").get(0);
+			Subject subject = coreService.getSubjectByEmail(email);
+			if (null == subject && !userGroups.isEmpty()) {
+				subject = createUser(environment, email, attributes);
+			}
+
+			if (null != subject) {
+				if (subject.isLocked()) {
+					messageText = MessageConstants.USER_IS_LOCKED;
+				} else {
+					boolean success = coreService.loginByUserName(environment, subject.getAuthName());
+					LOGGER.info("Logged in {} : {}", subject.getAuthName(), success);
+					if (success) {
+						messageText = MessageConstants.USER_AUTHENTICATED;
+						level = MessageType.OK;
+					}
+				}
+			} else {
+				messageText = MessageConstants.USER_UNKNOWN;
+				level = MessageType.INVALID;
+			}
+
+		} catch (SamlException e) {
+			LOGGER.error("Error processing SAML Response", e);
+			messageText = "Error processing login request (#" + e.hashCode() + ")";
+		}
+		Messages messages = new Messages();
+		Message message = new Message();
+		message.setClazz(level);
+		message.setContent(messageSource.getMessage(messageText, new Object[0], environment.getLocale()));
+		messages.getMessageList().add(message);
+		ElementHelper.addMessages(environment, messages);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(HttpHeaders.LOCATION, forwardTarget);
+		return new ResponseEntity<>(headers, HttpStatus.FOUND);
+	}
+
+	private Subject createUser(Environment environment, String email, Map<String, List<String>> attributes) {
+		String givenname = attributes.get(CLAIM + "givenName").get(0);
+		String surname = attributes.get(CLAIM + "surname").get(0);
+		String userName = StringUtils.lowerCase(StringNormalizer.normalize(givenname + "." + surname));
+		try {
+			SubjectImpl user = new SubjectImpl();
+			user.setEmail(email);
+			user.setLanguage(environment.getLocale().getLanguage());
+			user.setName(userName);
+			user.setTimeZone(environment.getTimeZone().getID());
+			user.setPasswordChangePolicy(PasswordChangePolicy.MUST_NOT);
+			user.setRealname(givenname + " " + surname);
+			user.setDescription("automatically created from SAML login at " + new Date());
+			user.setUserType(UserType.LOCAL_USER);
+			Subject newUser = coreService.createSubject(user);
+			coreService.addGroupsToSubject(user.getName(), userGroups, true);
+			return newUser;
+		} catch (BusinessException e) {
+			LOGGER.error("Error creating new user " + userName, e);
+		}
+		return null;
 	}
 
 	@PostMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = {
@@ -114,72 +215,6 @@ public class SamlController implements InitializingBean {
 			return NOT_IMPLEMENTED;
 		}
 		return new ResponseEntity<>(payload, HttpStatus.OK);
-	}
-
-	@PostMapping(path = "/saml", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public ResponseEntity<Void> reply(HttpServletRequest request, Environment environment) {
-		if (!samlEnabled) {
-			return NOT_IMPLEMENTED;
-		}
-		String messageText = "Login failed!";
-		MessageType level = MessageType.ERROR;
-		try {
-			String parameter = request.getParameter("SAMLResponse");
-			LOGGER.debug("Received SAMLResponse: {}", parameter);
-			SamlResponse samlResp = samlClient.decodeAndValidateSamlResponse(parameter, request.getMethod());
-
-			Assertion assertion = samlResp.getAssertion();
-			Map<String, List<String>> stringAttributes = new HashMap<>();
-
-			for (AttributeStatement as : assertion.getAttributeStatements()) {
-				for (Attribute attr : as.getAttributes()) {
-					String name = attr.getName();
-					List<String> values = attr.getAttributeValues().stream().filter(v -> (v instanceof AttributeValue))
-							.map(AttributeValue.class::cast).map(AttributeValue::getTextContent)
-							.collect(Collectors.toList());
-					stringAttributes.put(name, values);
-					LOGGER.debug("Attribute {} with values {}", name, StringUtils.join(values, ", "));
-				}
-			}
-
-			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
-
-			String emailAttributeName = "name";
-			String givenname = "givenname";
-			String surname = "surname";
-			List<String> emails = stringAttributes.get(CLAIM + emailAttributeName);
-			if (!emails.isEmpty()) {
-				String email = emails.get(0);
-				Subject subject = coreService.getSubjectByEmail(email);
-				if (null == subject) {
-					messageText = "Unknown user";
-					level = MessageType.INVALID;
-				} else if (subject.isLocked()) {
-					messageText = "User is locked";
-				} else {
-					boolean success = coreService.loginByUserName(environment, subject.getAuthName());
-					LOGGER.info("Logged in {} : {}", subject.getAuthName(), success);
-					if (success) {
-						messageText = "Login successfull";
-						level = MessageType.OK;
-					}
-				}
-			}
-
-		} catch (SamlException e) {
-			LOGGER.error("Error processing SAML Response #" + e.hashCode() + "", e);
-			messageText = "Error processing login request (#" + e.hashCode() + ")";
-		}
-		Messages messages = new Messages();
-		Message message = new Message();
-		message.setClazz(level);
-		message.setContent(messageText);
-		messages.getMessageList().add(message);
-		ElementHelper.addMessages(environment, messages);
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(HttpHeaders.LOCATION, "/manager");
-		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
 }

@@ -36,6 +36,11 @@
 		<property id="mailFrom" description="the sender address for emails send during passwort retrieval">support@example.com</property>
 		<property id="digestMaxValidity" description="the maximum validity of a login digest in minutes">3</property>
 		<property id="loginForwardStatus" description="The HTTP Status to use when forwarding the user after login">302</property>
+		<property id="samlEnabled" description="Enable SAML 2 authentication" type="boolean">false</property>
+		<property id="samlClientId" description="The client ID/application name for SAML"></property>
+		<property id="samlForwardTarget" description="Target to forward to after successful SAML authentication">/manager</property>
+		<property id="samlDescriptor" description="The metadata describing the SAML Identity Provider" clob="true" type="multiline"></property>
+		<property id="samlCreateNewUserWithGroups" description="if not empty, a new user with this groups is created in case the user does not exist" type="text"></property>
 	</properties>
 
 </application>
