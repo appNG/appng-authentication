@@ -17,9 +17,11 @@ import org.appng.api.Environment;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
+import org.appng.api.support.ElementHelper;
 import org.appng.core.service.CoreService;
-import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.schema.XSString;
+import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
+import org.appng.xml.platform.Messages;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -69,6 +71,8 @@ public class SamlController implements InitializingBean {
 	private @Value("${samlClientId:}") String clientId;
 //	private @Value("${samlAssertionConsumerUrl:}") String assertionConsumerUrl;
 	private SamlClient samlClient;
+
+	public static String CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/";
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -124,7 +128,6 @@ public class SamlController implements InitializingBean {
 			SamlResponse samlResp = samlClient.decodeAndValidateSamlResponse(parameter, request.getMethod());
 
 			Assertion assertion = samlResp.getAssertion();
-
 			Map<String, List<String>> stringAttributes = new HashMap<>();
 
 			for (AttributeStatement as : assertion.getAttributeStatements()) {
@@ -140,27 +143,38 @@ public class SamlController implements InitializingBean {
 
 			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
 
-			String emailAttributeName = "Email";
-			List<String> emails = stringAttributes.get(emailAttributeName);
+			String emailAttributeName = "name";
+			String givenname = "givenname";
+			String surname = "surname";
+			List<String> emails = stringAttributes.get(CLAIM + emailAttributeName);
 			if (!emails.isEmpty()) {
 				String email = emails.get(0);
 				Subject subject = coreService.getSubjectByEmail(email);
+				String messageText = "Login failed!";
 				if (null == subject) {
 					// TODO create subject with basic user group?
-
 				} else {
-					coreService.loginByUserName(environment, subject.getAuthName());
-					HttpHeaders headers = new HttpHeaders();
-					// TODO forward to certain application
-					headers.set(HttpHeaders.LOCATION, "/manager");
-					response = new ResponseEntity<>(headers, HttpStatus.FOUND);
+					boolean success = coreService.loginByUserName(environment, subject.getAuthName());
+					LOGGER.info("Logged in {} : {}", subject.getAuthName(), success);
+					if (success) {
+						messageText = "Login successfull";
+					}
 				}
+				Messages messages = new Messages();
+				Message message = new Message();
+				message.setClazz(MessageType.ERROR);
+				message.setContent(messageText);
+				messages.getMessageList().add(message);
+				ElementHelper.addMessages(environment, messages);
 			}
 
 		} catch (SamlException e) {
 			LOGGER.error("Error processing SAML Response", e);
 			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(HttpHeaders.LOCATION, "/manager");
+		response = new ResponseEntity<>(headers, HttpStatus.FOUND);
 		return response;
 	}
 
