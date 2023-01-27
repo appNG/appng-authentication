@@ -121,7 +121,8 @@ public class SamlController implements InitializingBean {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
 		}
-		ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		String messageText = "Login failed!";
+		MessageType level = MessageType.ERROR;
 		try {
 			String parameter = request.getParameter("SAMLResponse");
 			LOGGER.debug("Received SAMLResponse: {}", parameter);
@@ -150,32 +151,35 @@ public class SamlController implements InitializingBean {
 			if (!emails.isEmpty()) {
 				String email = emails.get(0);
 				Subject subject = coreService.getSubjectByEmail(email);
-				String messageText = "Login failed!";
 				if (null == subject) {
-					// TODO create subject with basic user group?
+					messageText = "Unknown user";
+					level = MessageType.INVALID;
+				} else if (subject.isLocked()) {
+					messageText = "User is locked";
 				} else {
 					boolean success = coreService.loginByUserName(environment, subject.getAuthName());
 					LOGGER.info("Logged in {} : {}", subject.getAuthName(), success);
 					if (success) {
 						messageText = "Login successfull";
+						level = MessageType.OK;
 					}
 				}
-				Messages messages = new Messages();
-				Message message = new Message();
-				message.setClazz(MessageType.ERROR);
-				message.setContent(messageText);
-				messages.getMessageList().add(message);
-				ElementHelper.addMessages(environment, messages);
 			}
 
 		} catch (SamlException e) {
-			LOGGER.error("Error processing SAML Response", e);
-			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			LOGGER.error("Error processing SAML Response #" + e.hashCode() + "", e);
+			messageText = "Error processing login request (#" + e.hashCode() + ")";
 		}
+		Messages messages = new Messages();
+		Message message = new Message();
+		message.setClazz(level);
+		message.setContent(messageText);
+		messages.getMessageList().add(message);
+		ElementHelper.addMessages(environment, messages);
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(HttpHeaders.LOCATION, "/manager");
-		response = new ResponseEntity<>(headers, HttpStatus.FOUND);
-		return response;
+		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
 }
