@@ -18,6 +18,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.core.service.CoreService;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -124,13 +125,14 @@ public class SamlController implements InitializingBean {
 
 			Assertion assertion = samlResp.getAssertion();
 
-			Map<String, List<String>> stringAttributes = new HashMap<>();
+			Map<String, List<XMLObject>> stringAttributes = new HashMap<>();
 
 			for (AttributeStatement as : assertion.getAttributeStatements()) {
 				for (Attribute attr : as.getAttributes()) {
 					String name = attr.getName();
-					List<String> values = attr.getAttributeValues().stream().filter(v -> (v instanceof XSString))
-							.map(XSString.class::cast).map(XSString::getValue).collect(Collectors.toList());
+					List<XMLObject> values = attr.getAttributeValues().stream()//.filter(v -> (v instanceof XSString))
+							//.map(XSString.class::cast).map(XSString::getValue)
+							.collect(Collectors.toList());
 					stringAttributes.put(name, values);
 					LOGGER.debug("Attribute {} with values {}", name, StringUtils.join(values, ", "));
 				}
@@ -138,22 +140,22 @@ public class SamlController implements InitializingBean {
 
 			// https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-saml-tokens
 
-			String emailAttributeName = "Email";
-			List<String> emails = stringAttributes.get(emailAttributeName);
-			if (!emails.isEmpty()) {
-				String email = emails.get(0);
-				Subject subject = coreService.getSubjectByEmail(email);
-				if (null == subject) {
-					// TODO create subject with basic user group?
-
-				} else {
-					coreService.loginByUserName(environment, subject.getAuthName());
-					HttpHeaders headers = new HttpHeaders();
-					// TODO forward to certain application
-					headers.set(HttpHeaders.LOCATION, "/manager");
-					response = new ResponseEntity<>(headers, HttpStatus.FOUND);
-				}
-			}
+//			String emailAttributeName = "Email";
+//			List<String> emails = stringAttributes.get(emailAttributeName);
+//			if (!emails.isEmpty()) {
+//				String email = emails.get(0);
+//				Subject subject = coreService.getSubjectByEmail(email);
+//				if (null == subject) {
+//					// TODO create subject with basic user group?
+//
+//				} else {
+//					coreService.loginByUserName(environment, subject.getAuthName());
+//					HttpHeaders headers = new HttpHeaders();
+//					// TODO forward to certain application
+//					headers.set(HttpHeaders.LOCATION, "/manager");
+//					response = new ResponseEntity<>(headers, HttpStatus.FOUND);
+//				}
+//			}
 
 		} catch (SamlException e) {
 			LOGGER.error("Error processing SAML Response", e);
