@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.core.service.CoreService;
 import org.opensaml.core.xml.schema.XSString;
@@ -58,12 +59,13 @@ public class SamlController implements InitializingBean {
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
 
+	private final Site site;
 	private final Application application;
 	private final CoreService coreService;
 
 	private @Value("${samlEnabled:false}") boolean samlEnabled;
 	private @Value("${samlClientId:}") String clientId;
-	private @Value("${samlAssertionConsumerUrl:}") String assertionConsumerUrl;
+//	private @Value("${samlAssertionConsumerUrl:}") String assertionConsumerUrl;
 	private SamlClient samlClient;
 
 	@Override
@@ -71,6 +73,8 @@ public class SamlController implements InitializingBean {
 		if (samlEnabled) {
 			byte[] samlDescriptor = application.getProperties().getClob("samlDescriptor")
 					.getBytes(StandardCharsets.UTF_8);
+			String assertionConsumerUrl = String.format("%s/service/%s/%s/rest/saml", site.getDomain(), site.getName(),
+					application.getName());
 			samlClient = SamlClient.fromMetadata(clientId, assertionConsumerUrl,
 					new InputStreamReader(new ByteArrayInputStream(samlDescriptor)), SamlClient.SamlIdpBinding.POST);
 			LOGGER.debug("Created SAML client for '' with endpoint {}", clientId, assertionConsumerUrl);
@@ -107,7 +111,7 @@ public class SamlController implements InitializingBean {
 	}
 
 	@PostMapping(path = "/saml", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = { MediaType.TEXT_PLAIN_VALUE,
-			MediaType.APPLICATION_XML_VALUE })
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE })
 	public ResponseEntity<Void> reply(HttpServletRequest request, Environment environment) {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
