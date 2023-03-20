@@ -136,6 +136,7 @@ public class LoginFormTest extends TestBase {
 		props.put(AuthenticationSettings.SAML_ENABLED, "false");
 		props.put(AuthenticationSettings.SAML_CLIENT_ID, "");
 		props.put(AuthenticationSettings.SAML_FORWARD_TARGET, "");
+		props.put("site." + SiteProperties.MANAGER_PATH, "/manager");
 		return props;
 	}
 
