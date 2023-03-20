@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Group;
@@ -90,6 +91,7 @@ public class SamlController implements InitializingBean {
 	private final CoreService coreService;
 	private final MessageSource messageSource;
 
+	private @Value("${site." + SiteProperties.MANAGER_PATH + "}") String managerPath;
 	private @Value("${" + AuthenticationSettings.SAML_ENABLED + "}") boolean samlEnabled;
 	private @Value("${" + AuthenticationSettings.SAML_CLIENT_ID + "}") String clientId;
 	private @Value("${" + AuthenticationSettings.SAML_FORWARD_TARGET + "}") String forwardTarget;
@@ -108,7 +110,7 @@ public class SamlController implements InitializingBean {
 			String endpoint = getEndpoint();
 			samlClient = SamlClient.fromMetadata(clientId, endpoint,
 					new InputStreamReader(new ByteArrayInputStream(samlDescriptor)), SamlClient.SamlIdpBinding.POST);
-			LOGGER.info("Created SAML client '{}' with endpoint {} and IDP", clientId, endpoint,
+			LOGGER.info("Created SAML client '{}' with endpoint {} and IDP {}", clientId, endpoint,
 					samlClient.getIdentityProviderUrl());
 		} else {
 			LOGGER.debug("SAML is disabled");
@@ -169,7 +171,8 @@ public class SamlController implements InitializingBean {
 						level = MessageType.OK;
 						List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
 								.collect(Collectors.toList());
-						target = AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
+						target = managerPath
+								+ AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
 						environment.setAttribute(Scope.SESSION, SAML_NAME_ID, email);
 					}
 				}
@@ -228,7 +231,7 @@ public class SamlController implements InitializingBean {
 	}
 
 	@PostMapping(path = "/saml/logout", consumes = { MediaType.APPLICATION_FORM_URLENCODED_VALUE })
-	public ResponseEntity<String> logout(HttpServletRequest request, Environment environment) {
+	public ResponseEntity<Void> logout(HttpServletRequest request, Environment environment) {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
 		}
@@ -239,8 +242,8 @@ public class SamlController implements InitializingBean {
 			LOGGER.debug("logout response: {}", samlResp);
 
 		} catch (SamlException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error processing logout", e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -255,8 +258,8 @@ public class SamlController implements InitializingBean {
 		try {
 			samlClient.redirectToIdentityProviderLogout(response, "status", "statustext");
 		} catch (IOException | SamlException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error processing logout", e);
+			response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		}
 	}
 
