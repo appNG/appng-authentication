@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.application.authentication.BaseLoginTest;
 import org.appng.application.authentication.webform.AuthenticationTestDataProvider;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 public class NtlmLoginTest extends BaseLoginTest {
@@ -34,18 +34,12 @@ public class NtlmLoginTest extends BaseLoginTest {
 	@Mock
 	private Principal principal;
 
-	@Before
-	public void setup() throws Exception {
-		super.setup();
-		Mockito.when(principal.getName()).thenReturn("subject-2");
-		servletRequest.setUserPrincipal(principal);
-	}
-
 	@Test
 	@Transactional
 	public void testNtmlLoginOk() throws Exception {
 		new AuthenticationTestDataProvider().writeTestData(em);
 		Assert.assertNull(environment.getSubject());
+		Mockito.when(principal.getName()).thenReturn("subject-2");
 		doTest();
 		Assert.assertNotNull(environment.getSubject());
 		Mockito.verify(site).sendRedirect(Mockito.eq(environment), Mockito.eq("/manager/appng/appng-manager"),
@@ -61,6 +55,7 @@ public class NtlmLoginTest extends BaseLoginTest {
 	}
 
 	private void doTest() throws Exception {
+		((MockHttpServletRequest) ((DefaultEnvironment) environment).getServletRequest()).setUserPrincipal(principal);
 		getAction("form-ntlm", "login").withParam("form_action", "loginUser").getCallableAction(null).perform();
 	}
 

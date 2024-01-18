@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.MessageConstants;
+import org.appng.application.authentication.saml.SamlController;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -42,12 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class LogoutUser extends AbstractLogon implements ActionProvider<LoginData> {
 
-	public LogoutUser(CoreService coreService) {
+	private SamlController samlController;
+
+	public LogoutUser(CoreService coreService, SamlController samlController) {
 		super(coreService);
+		this.samlController = samlController;
 	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,
 			LoginData valueHolder, FieldProcessor fp) {
+		samlController.logout(environment);
 		if (environment.isSubjectAuthenticated()) {
 			Locale locale = environment.getLocale();
 			coreService.logoutSubject(environment);

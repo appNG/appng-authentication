@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 
 import org.appng.api.NotBlank;
 
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
@@ -29,6 +30,7 @@ public class LoginData {
 	private String password;
 	private String passwordConfirmation;
 	private String digest;
+	private @Getter String ssoLink;
 
 	@NotBlank(groups = Login.class, message = "{username.required}")
 	public String getUsername() {

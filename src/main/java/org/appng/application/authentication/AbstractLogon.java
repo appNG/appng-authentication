@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.application.authentication;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import org.appng.api.Options;
 import org.appng.api.Scope;
 import org.appng.api.model.Application;
 import org.appng.api.model.Group;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.application.authentication.webform.LoginData;
@@ -109,13 +111,16 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 
 	protected void processLogonResult(Site site, Application application, Environment env, Options options,
 			FieldProcessor fp, boolean success) {
-		String successPage = application.getProperties().getString(AuthenticationSettings.SUCCESS_PAGE);
+		List<String> groupNames = env.isSubjectAuthenticated()
+				? env.getSubject().getGroups().stream().map(Group::getName).collect(Collectors.toList())
+				: Collections.emptyList();
+		String successPage = getSuccessPage(application.getProperties(), success, groupNames);
+		processLogonResult(site, application, env, options, fp, success, successPage);
+	}
 
-		String successPageGroupwise = application.getProperties()
-				.getClob(AuthenticationSettings.SUCCESS_PAGE_GROUPWISE);
-		if (success && StringUtils.isNotBlank(successPageGroupwise)) {
-			List<String> groupNames = env.getSubject().getGroups().stream().map(Group::getName)
-					.collect(Collectors.toList());
+	public static String getSuccessPage(Properties applicationProps, boolean useGroups, List<String> groupNames) {
+		String successPageGroupwise = applicationProps.getClob(AuthenticationSettings.SUCCESS_PAGE_GROUPWISE);
+		if (useGroups && StringUtils.isNotBlank(successPageGroupwise)) {
 			String[] successPagesForGroup = successPageGroupwise.split(StringUtils.LF);
 			for (String target : successPagesForGroup) {
 				target = StringUtils.trim(target);
@@ -123,15 +128,12 @@ public abstract class AbstractLogon implements ActionProvider<LoginData> {
 					String[] pair = target.split("=");
 					String groupName = StringUtils.trim(pair[0]);
 					if (groupNames.contains(groupName)) {
-						successPage = StringUtils.trim(pair[1]);
-						log().debug("Found matching target {} for group {}: {}", successPage, groupName, successPage);
-						break;
+						return StringUtils.trim(pair[1]);
 					}
 				}
 			}
 		}
-
-		processLogonResult(site, application, env, options, fp, success, successPage);
+		return applicationProps.getString(AuthenticationSettings.SUCCESS_PAGE);
 	}
 
 	public boolean isSubjectLoggedIn(Environment env) {

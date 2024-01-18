@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package org.appng.application.authentication;
 
+import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -23,6 +25,7 @@ import javax.persistence.PersistenceContext;
 import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.support.CallableAction;
@@ -56,9 +59,22 @@ public class BaseLoginTest extends TestBase {
 	}
 
 	@Override
+	protected Properties getProperties() {
+		Properties props = super.getProperties();
+		props.put(AuthenticationSettings.SAML_ENABLED, "false");
+		props.put(AuthenticationSettings.SAML_CLIENT_ID, "");
+		props.put(AuthenticationSettings.SAML_FORWARD_TARGET, "");
+		props.put("site." + SiteProperties.MANAGER_PATH, "/manager");
+		return props;
+	}
+
+	@Override
 	protected List<Property> getPlatformProperties(String prefix) {
 		List<Property> platformProperties = super.getPlatformProperties(prefix);
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.MAX_LOGIN_ATTEMPTS, "3"));
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.APPNG_DATA, "."));
+		// JDK-8254876 first segment of Path must exist!
+		new File("target/uploads").mkdirs();
 		return platformProperties;
 	}
 

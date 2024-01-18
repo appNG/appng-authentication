@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,22 +75,6 @@ public class PasswordReset extends AbstractLogon {
 		}
 	}
 
-	/**
-	 * resets the password or send password reset mail. Returns true if properties of the {@link AuthSubject} has
-	 * changed which have to be saved
-	 * 
-	 * @param  site
-	 * @param  application
-	 * @param  environment
-	 * @param  request
-	 * @param  fp
-	 * @param  service
-	 * @param  subject
-	 * @param  passwordPolicy
-	 * @param  username
-	 * @param  email
-	 * @return
-	 */
 	protected boolean doReset(Site site, Application application, Environment environment, Request request,
 			FieldProcessor fp, CoreService service, AuthSubject subject, PasswordPolicy passwordPolicy, String username,
 			String email) {
