@@ -82,6 +82,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SamlController implements InitializingBean {
 
 	private static String SAML_NAME_ID = "SamlNameID";
+	private static String SAML_GIVENNAME = "givenname";
+	private static String SAML_SURNAME = "surname";
 
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
@@ -198,9 +200,9 @@ public class SamlController implements InitializingBean {
 	}
 
 	private Subject createUser(Environment environment, String email, Map<String, List<String>> attributes) {
-		String givenname = attributes.get(CLAIM + "givenname").get(0);
-		String surname = attributes.get(CLAIM + "surname").get(0);
-		String userName = StringUtils.lowerCase(StringNormalizer.normalize(givenname + "." + surname));
+		String givenname = extractName(attributes, SAML_GIVENNAME);
+		String surname = extractName(attributes, SAML_SURNAME);
+		String userName = StringNormalizer.normalize(givenname + "." + surname);
 		try {
 			SubjectImpl user = new SubjectImpl();
 			user.setEmail(email);
@@ -219,6 +221,11 @@ public class SamlController implements InitializingBean {
 			LOGGER.error("Error creating new user " + userName, e);
 		}
 		return null;
+	}
+
+	private String extractName(Map<String, List<String>> attributes, String attributeName) {
+		return StringUtils.replace(attributes.get(CLAIM + attributeName).get(0), StringUtils.SPACE, StringUtils.EMPTY)
+				.toLowerCase();
 	}
 
 	@PostMapping(path = "/saml/sign-on", produces = { MediaType.TEXT_PLAIN_VALUE }, consumes = {
