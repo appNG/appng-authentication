@@ -82,6 +82,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SamlController implements InitializingBean {
 
 	private static String SAML_NAME_ID = "SamlNameID";
+	private static String SAML_GIVENNAME = "givenname";
+	private static String SAML_SURNAME = "surname";
 
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
@@ -198,9 +200,10 @@ public class SamlController implements InitializingBean {
 	}
 
 	private Subject createUser(Environment environment, String email, Map<String, List<String>> attributes) {
-		String givenname = attributes.get(CLAIM + "givenname").get(0);
-		String surname = attributes.get(CLAIM + "surname").get(0);
-		String userName = StringUtils.lowerCase(StringNormalizer.normalize(givenname + "." + surname));
+		String givenname = attributes.get(CLAIM + SAML_GIVENNAME).get(0);
+		String surname = attributes.get(CLAIM + SAML_SURNAME).get(0);
+		String userName = (givenname + "." + surname).toLowerCase();
+		userName = StringNormalizer.normalize(StringUtils.replace(userName, StringUtils.SPACE, StringUtils.EMPTY));
 		try {
 			SubjectImpl user = new SubjectImpl();
 			user.setEmail(email);
