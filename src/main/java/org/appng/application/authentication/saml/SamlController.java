@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,8 +81,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SamlController implements InitializingBean {
 
 	private static String SAML_NAME_ID = "SamlNameID";
-	private static String SAML_GIVENNAME = "givenname";
-	private static String SAML_SURNAME = "surname";
+	protected static String SAML_GIVENNAME = "givenname";
+	protected static String SAML_SURNAME = "surname";
 
 	@SuppressWarnings("rawtypes")
 	private static final ResponseEntity NOT_IMPLEMENTED = ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
@@ -94,11 +93,11 @@ public class SamlController implements InitializingBean {
 	private final MessageSource messageSource;
 
 	private @Value("${site." + SiteProperties.MANAGER_PATH + "}") String managerPath;
-	private @Value("${" + AuthenticationSettings.SAML_ENABLED + "}") boolean samlEnabled;
+	protected @Value("${" + AuthenticationSettings.SAML_ENABLED + "}") boolean samlEnabled;
 	private @Value("${" + AuthenticationSettings.SAML_CLIENT_ID + "}") String clientId;
 	private @Value("${" + AuthenticationSettings.SAML_FORWARD_TARGET + "}") String forwardTarget;
-	private List<String> userGroups;
-	private SamlClient samlClient;
+	protected List<String> userGroups;
+	protected SamlClient samlClient;
 
 	public static String CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/";
 
@@ -149,8 +148,7 @@ public class SamlController implements InitializingBean {
 				for (Attribute attr : as.getAttributes()) {
 					String name = attr.getName();
 					List<String> values = attr.getAttributeValues().stream().filter(v -> (v instanceof AttributeValue))
-							.map(AttributeValue.class::cast).map(AttributeValue::getTextContent)
-							.collect(Collectors.toList());
+							.map(AttributeValue.class::cast).map(AttributeValue::getTextContent).toList();
 					attributes.put(name, values);
 					LOGGER.debug("Attribute {} with values {}", name, StringUtils.join(values, ", "));
 				}
@@ -171,11 +169,18 @@ public class SamlController implements InitializingBean {
 					if (success) {
 						messageText = MessageConstants.USER_AUTHENTICATED;
 						level = MessageType.OK;
-						List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
-								.collect(Collectors.toList());
-						target = managerPath
-								+ AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
 						environment.setAttribute(Scope.SESSION, SAML_NAME_ID, email);
+
+						String preLogin = environment.getAttribute(Scope.SESSION, AbstractLogon.PRE_LOGIN_PATH);
+						if (null != preLogin && !preLogin.startsWith("/manager")) {
+							target = preLogin;
+							LOGGER.info("Found {}={}", AbstractLogon.PRE_LOGIN_PATH, target);
+						} else {
+							List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
+									.toList();
+							target = managerPath
+									+ AbstractLogon.getSuccessPage(application.getProperties(), success, groupNames);
+						}
 					}
 				}
 			} else {
