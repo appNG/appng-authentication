@@ -68,7 +68,7 @@ public class SamlControllerTest {
 		Mockito.when(env.getLocale()).thenReturn(Locale.ENGLISH);
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
 		String preLogin = "/path/to/app";
-		Mockito.when(env.getAttribute(Scope.SESSION, AbstractLogon.PRE_LOGIN_PATH)).thenReturn(preLogin);
+		Mockito.when(env.removeAttribute(Scope.SESSION, AbstractLogon.PRE_LOGIN_PATH)).thenReturn(preLogin);
 		Mockito.doAnswer(i -> i.getArgumentAt(0, Subject.class)).when(service).createSubject(Mockito.any());
 
 		ResponseEntity<Void> response = samlController.reply(request, env);
