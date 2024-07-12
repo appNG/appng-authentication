@@ -15,6 +15,8 @@
  */
 package org.appng.application.authentication.webform;
 
+import static org.appng.api.Scope.SESSION;
+
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +38,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.SelectionFactory;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.application.authentication.AbstractLogon;
 import org.appng.application.authentication.saml.SamlController;
 import org.appng.core.domain.SubjectImpl;
@@ -58,19 +61,24 @@ public class LoginForm implements DataProvider {
 	private final SelectionFactory selectionFactory;
 	private final SamlController samlController;
 
-	public DataContainer getData(Site site, Application application, Environment environment, Options options,
-			Request request, FieldProcessor fieldProcessor) {
+	public DataContainer getData(Site site, Application application, Environment env, Options options, Request request,
+			FieldProcessor fieldProcessor) {
+		org.appng.api.Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+		if (null != path) {
+			env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, path.getCurrentPath());
+			LOGGER.debug("Setting {}={}", AbstractLogon.PRE_LOGIN_PATH, path.getCurrentPath());
+		}
 		DataContainer dataContainer = new DataContainer(fieldProcessor);
-		Selection langSelection = processLanguage(site, environment, request);
+		Selection langSelection = processLanguage(site, env, request);
 		if (null != langSelection) {
 			dataContainer.getSelections().add(langSelection);
 		}
 		LoginData loginData = new LoginData();
-		if(samlController.isEnabled()) {
+		if (samlController.isEnabled()) {
 			loginData.setSsoLink(samlController.getEndpoint());
 		}
 		dataContainer.setItem(loginData);
-		((DefaultEnvironment) environment).getServletResponse()
+		((DefaultEnvironment) env).getServletResponse()
 				.setHeader(com.google.common.net.HttpHeaders.CONTENT_SECURITY_POLICY, "frame-ancestors 'none'");
 		return dataContainer;
 	}
