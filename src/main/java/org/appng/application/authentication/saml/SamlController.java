@@ -171,9 +171,9 @@ public class SamlController implements InitializingBean {
 						level = MessageType.OK;
 						environment.setAttribute(Scope.SESSION, SAML_NAME_ID, email);
 						String preLogin = environment.removeAttribute(Scope.SESSION, AbstractLogon.PRE_LOGIN_PATH);
-						if (null != preLogin && !preLogin.startsWith("/manager")) {
+						LOGGER.info("Found {} = {}", AbstractLogon.PRE_LOGIN_PATH, target);
+						if (null != preLogin && !preLogin.equals("/manager")) {
 							target = preLogin;
-							LOGGER.info("Found {} = {}", AbstractLogon.PRE_LOGIN_PATH, target);
 						} else {
 							List<String> groupNames = environment.getSubject().getGroups().stream().map(Group::getName)
 									.toList();
