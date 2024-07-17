@@ -63,10 +63,11 @@ public class LoginForm implements DataProvider {
 
 	public DataContainer getData(Site site, Application application, Environment env, Options options, Request request,
 			FieldProcessor fieldProcessor) {
-		String currentPath = env.getAttribute(Scope.REQUEST, EnvironmentKeys.SERVLETPATH);
+		org.appng.api.Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+		String currentPath = path.getCurrentPath();
 		if (null != currentPath) {
 			String queryString = env.getAttribute(Scope.REQUEST, EnvironmentKeys.QUERY_STRING);
-			String preLoginPath = currentPath + null == queryString ? "" : "?" + queryString;
+			String preLoginPath = currentPath + null == StringUtils.trimToNull(queryString) ? "" : "?" + queryString;
 			env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
 			LOGGER.debug("Setting {}={}", AbstractLogon.PRE_LOGIN_PATH, currentPath);
 		}
