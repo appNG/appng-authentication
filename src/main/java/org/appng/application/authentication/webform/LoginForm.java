@@ -63,14 +63,14 @@ public class LoginForm implements DataProvider {
 
 	public DataContainer getData(Site site, Application application, Environment env, Options options, Request request,
 			FieldProcessor fieldProcessor) {
-		org.appng.api.Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
-		if (null != path) {
-			String currentPath = path.getCurrentPath();
-			if (null != currentPath) {
-				env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, currentPath);
-				LOGGER.debug("Setting {}={}", AbstractLogon.PRE_LOGIN_PATH, currentPath);
-			}
+		String currentPath = env.getAttribute(Scope.REQUEST, EnvironmentKeys.SERVLETPATH);
+		if (null != currentPath) {
+			String queryString = env.getAttribute(Scope.REQUEST, EnvironmentKeys.QUERY_STRING);
+			String preLoginPath = currentPath + null == queryString ? "" : "?" + queryString;
+			env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
+			LOGGER.debug("Setting {}={}", AbstractLogon.PRE_LOGIN_PATH, currentPath);
 		}
+
 		DataContainer dataContainer = new DataContainer(fieldProcessor);
 		Selection langSelection = processLanguage(site, env, request);
 		if (null != langSelection) {
