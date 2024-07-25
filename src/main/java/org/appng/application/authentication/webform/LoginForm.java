@@ -67,9 +67,13 @@ public class LoginForm implements DataProvider {
 		String currentPath = path.getCurrentPath();
 		if (null != currentPath) {
 			String queryString = env.getAttribute(Scope.REQUEST, EnvironmentKeys.QUERY_STRING);
-			String preLoginPath = currentPath + (null == StringUtils.trimToNull(queryString) ? "" : "?" + queryString);
-			env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
-			LOGGER.debug("Setting {} = {}", AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
+			// language was set
+			if (!StringUtils.startsWith(queryString, PARAM_ACTION + "=")) {
+				String preLoginPath = currentPath
+						+ (StringUtils.isBlank(queryString) ? StringUtils.EMPTY : "?" + queryString);
+				env.setAttribute(SESSION, AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
+				LOGGER.debug("Setting {} = {}", AbstractLogon.PRE_LOGIN_PATH, preLoginPath);
+			}
 		}
 
 		DataContainer dataContainer = new DataContainer(fieldProcessor);
