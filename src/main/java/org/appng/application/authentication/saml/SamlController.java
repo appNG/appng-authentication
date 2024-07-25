@@ -132,7 +132,6 @@ public class SamlController implements InitializingBean {
 		if (!samlEnabled) {
 			return NOT_IMPLEMENTED;
 		}
-		LOGGER.info("[{}] - '{}{}'", request.getMethod(), request.getServletPath(), request.getQueryString());
 		String messageText = MessageConstants.USER_LOGIN_FAIL;
 		MessageType level = MessageType.ERROR;
 		String target = forwardTarget;
